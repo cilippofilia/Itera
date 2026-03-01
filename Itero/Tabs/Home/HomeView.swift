@@ -31,10 +31,13 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
-                        ForEach(0...2, id: \.self) { _ in
-                            PinnedProjectCell()
-                                .background(Color.green.opacity(0.3))
-                                .clipShape(.rect(cornerRadius: 12))
+                        ForEach(0...2, id: \.self) { i in
+                            NavigationLink(value: HomeDestination.project(i)) {
+                                ProjectCell(title: "Drinko", tasksCount: i)
+                                    .background(Color.green.opacity(0.3))
+                                    .clipShape(.rect(cornerRadius: 12))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal)
@@ -42,15 +45,18 @@ struct HomeView: View {
                     // projects
                     ScrollView(.horizontal) {
                         LazyHGrid(rows: projectRows) {
+                            // add limit of 5 then 6th will be a `see more` that opens projects tabs
                             ForEach(0...5, id: \.self) { i in
-                                PinnedProjectCell()
-                                    .background(Color.yellow.opacity(0.3))
-                                    .clipShape(.rect(cornerRadius: 12))
+                                NavigationLink(value: HomeDestination.project(i)) {
+                                    ProjectCell(title: "Drinko", tasksCount: i)
+                                        .background(Color.yellow.opacity(0.3))
+                                        .clipShape(.rect(cornerRadius: 12))
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                         .padding(.horizontal)
                     }
-                    .scrollTargetBehavior(.paging)
                     .scrollIndicators(.hidden)
 
                     // tasks
@@ -59,11 +65,10 @@ struct HomeView: View {
                             .font(.headline)
                             .foregroundStyle(.secondary)
                         ForEach(0...5, id: \.self) { i in
-                            Text("Task \(i)")
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.orange.opacity(0.3))
-                                .clipShape(.rect(cornerRadius: 12))
+                            NavigationLink(value: HomeDestination.task(i)) {
+                                TaskCell(title: "Task \(i)")
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal)
@@ -79,43 +84,16 @@ struct HomeView: View {
                     }
                 )
             }
-//            .navigationDestination(item: $viewModel.selectedTask) { task in
-//                EditTaskView(task: task)
-//            }
-            .contentMargins(.bottom, 70, for: .scrollContent)
-            .onContinueUserActivity(CSSearchableItemActionType, perform: loadSpotlightTask)
-        }
-    }
-
-    private func loadSpotlightTask(_ userActivity: NSUserActivity) {
-        guard let uniqueIdentifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String else {
-            return
-        }
-//        viewModel.selectTask(with: uniqueIdentifier)
-    }
-}
-
-// PinnedProjectCell.swift
-struct PinnedProjectCell: View {
-    var body: some View {
-        HStack {
-            Image(systemName: "circle")
-                .imageScale(.large)
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading) {
-                Text("project.title")
-                    .bold()
-                    .lineLimit(1)
-                Text("4 tasks")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            .navigationDestination(for: HomeDestination.self) { destination in
+                switch destination {
+                case .project(let id):
+                    ProjectPlaceholderView(projectID: id)
+                case .task(let id):
+                    TaskPlaceholderView(taskID: id)
+                }
             }
-
-            Spacer()
+            .contentMargins(.bottom, 70, for: .scrollContent)
         }
-        .padding()
-        .frame(maxWidth: .infinity, minHeight: 70)
     }
 }
 
