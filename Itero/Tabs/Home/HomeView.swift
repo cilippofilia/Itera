@@ -33,7 +33,9 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading) {
                     PinnedProjectsSection(projects: pinnedProjects)
+                        .padding()
                     ProjectsSection(projects: Array(projects.prefix(5)))
+                        .padding(.vertical)
                     TasksSection(tasks: Array(tasks.prefix(5)))
                 }
             }
@@ -58,6 +60,11 @@ struct HomeView: View {
             .contentMargins(.bottom, 70, for: .scrollContent)
         }
     }
+}
+
+enum HomeDestination: Hashable {
+    case project(id: UUID)
+    case task(id: UUID)
 }
 
 #Preview {

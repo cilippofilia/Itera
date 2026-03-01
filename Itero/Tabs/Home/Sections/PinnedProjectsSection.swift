@@ -24,7 +24,8 @@ struct PinnedProjectsSection: View {
                         NavigationLink(value: HomeDestination.project(id: project.id)) {
                             ProjectCell(
                                 title: project.title,
-                                tasksCount: project.tasks?.count ?? 0
+                                tasksCount: project.tasks?.count ?? 0,
+                                progressValue: project.completionAmount
                             )
                             .background(Color.green.opacity(0.3))
                             .clipShape(.rect(cornerRadius: 12))

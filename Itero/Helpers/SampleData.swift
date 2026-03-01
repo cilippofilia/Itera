@@ -79,7 +79,10 @@ enum SampleData {
         let onboardingTasks = [
             ProjectTask(title: "Design the welcome flow", status: .inProgress, priority: .high, project: onboarding),
             ProjectTask(title: "Write onboarding copy", status: .notStarted, priority: .normal, project: onboarding),
-            ProjectTask(title: "QA localization", status: .notStarted, priority: .normal, project: onboarding)
+            ProjectTask(title: "QA localization", status: .notStarted, priority: .normal, project: onboarding),
+            ProjectTask(title: "NA Release", status: .done, priority: .normal, project: onboarding),
+            ProjectTask(title: "IR Release", status: .done, priority: .normal, project: onboarding),
+            ProjectTask(title: "UK Release", status: .done, priority: .normal, project: onboarding)
         ]
         onboarding.tasks = onboardingTasks
 

@@ -5,7 +5,7 @@
 //  Created by Filippo Cilia on 01/03/2026.
 //
 
-import Foundation
+import SwiftUI
 import SwiftData
 
 @Model
@@ -21,6 +21,14 @@ final class Project: Identifiable {
     var dueDate: Date?
     var creationDate: Date
     var isPinned: Bool
+
+    var completionAmount: Double {
+        let originalTasks = tasks ?? []
+        guard originalTasks.isEmpty == false else { return 0 }
+
+        let completedTasks = originalTasks.filter { $0.status == .done }
+        return Double(completedTasks.count) / Double(originalTasks.count)
+    }
 
     init(
         id: UUID = UUID(),

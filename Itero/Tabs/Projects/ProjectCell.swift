@@ -10,29 +10,25 @@ import SwiftUI
 struct ProjectCell: View {
     let title: String
     let tasksCount: Int
+    let progressValue: Double
 
     var body: some View {
-        HStack {
-            Image(systemName: "circle")
-                .imageScale(.large)
+        VStack(alignment: .leading) {
+            Text(title)
+                .bold()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Text(String.localizedStringWithFormat(NSLocalizedString("tasks_count", comment: "Tasks count"), tasksCount))
+                .font(.caption)
                 .foregroundStyle(.secondary)
 
-            VStack(alignment: .leading) {
-                Text(title)
-                    .bold()
-                    .lineLimit(1)
-                Text(String.localizedStringWithFormat(NSLocalizedString("tasks_count", comment: "Tasks count"), tasksCount))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
+            ProgressView(value: progressValue)
         }
         .padding()
-        .frame(maxWidth: .infinity, minHeight: 70)
+        .frame(maxWidth: .infinity, minHeight: 70, alignment: .leading)
     }
 }
 
 #Preview {
-    ProjectCell(title: "Drinko", tasksCount: 4)
+    ProjectCell(title: "Drinko", tasksCount: 4, progressValue: 5.5)
 }
