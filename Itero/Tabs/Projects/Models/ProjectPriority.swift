@@ -14,4 +14,17 @@ enum ProjectPriority: String, CaseIterable, Codable {
     case low
     case normal
     case high
+
+    var title: String {
+        switch self {
+        case .notSet:
+            "Not Set"
+        case .low:
+            "Low"
+        case .normal:
+            "Normal"
+        case .high:
+            "High"
+        }
+    }
 }

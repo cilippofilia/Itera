@@ -21,7 +21,7 @@ struct ProjectsSection: View {
 
                 LazyVGrid(columns: columns) {
                     ForEach(projects) { project in
-                        NavigationLink(value: HomeDestination.project) {
+                        NavigationLink(value: project) {
                             ProjectCell(
                                 title: project.title ?? "",
                                 tasksCount: project.tasks?.count ?? 0,

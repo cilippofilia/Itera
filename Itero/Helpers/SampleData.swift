@@ -67,7 +67,7 @@ enum SampleData {
 
         let onboarding = Project(
             title: "Drinko.",
-            details: "Onboarding refresh",
+            details: "Cocktail making masterclass at your fingertips.",
             projectPriority: .high,
             projectStatus: .inProgress,
             startDate: now,

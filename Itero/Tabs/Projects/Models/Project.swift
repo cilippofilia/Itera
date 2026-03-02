@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class Project: Identifiable {
+final class Project: Identifiable, Hashable {
     var id: UUID = UUID()
     var title: String? = "Project Title"
     var details: String? = nil
@@ -56,5 +56,14 @@ final class Project: Identifiable {
         self.dueDate = dueDate
         self.creationDate = creationDate
         self.isPinned = isPinned
+    }
+
+    // MARK: HASHABLE CONFORMANCE METHODS
+    static func == (lhs: Project, rhs: Project) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

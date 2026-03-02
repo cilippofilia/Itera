@@ -14,4 +14,17 @@ enum ProjectStatus: String, CaseIterable, Codable {
     case notStarted
     case inProgress
     case done
+
+    var title: String {
+        switch self {
+        case .notSet:
+            "Not Set"
+        case .notStarted:
+            "Not Started"
+        case .inProgress:
+            "In Progress"
+        case .done:
+            "Done"
+        }
+    }
 }

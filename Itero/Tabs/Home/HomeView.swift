@@ -47,6 +47,7 @@ struct HomeView: View {
                     #if DEBUG
                     ereaseAllDataButton
                     addSampleDataButton
+                    createProjectButton
                     #else
                     // TODO: Create project button
                     #endif
@@ -65,8 +66,9 @@ extension HomeView {
         } actions: {
             #if DEBUG
             addSampleDataButton
+            createProjectButton
             #else
-            // TODO: Create project button
+            createProjectButton
             #endif
         }
     }
@@ -85,10 +87,11 @@ extension HomeView {
             }
         }
         .scrollBounceBehavior(.basedOnSize)
+        .navigationDestination(for: Project.self) { project in
+            ProjectDetailView(project: project)
+        }
         .navigationDestination(for: HomeDestination.self) { destination in
             switch destination {
-            case .project:
-                ProjectPlaceholderView(title: "Test Project")
             case .task:
                 TaskPlaceholderView(title: "Test Task")
             }
@@ -96,10 +99,21 @@ extension HomeView {
         .contentMargins(.bottom, 70, for: .scrollContent)
     }
 
+    var createProjectButton: some View {
+        Button(
+            "Add Project",
+            systemImage: "plus",
+            action: {
+                viewModel.createProject(modelContext: modelContext)
+            }
+        )
+    }
+
+    #if DEBUG
     var addSampleDataButton: some View {
         Button(
             "Add Data",
-            systemImage: "plus",
+            systemImage: "sparkles",
             action: {
                 viewModel.addSampleData(modelContext: modelContext)
             }
@@ -115,10 +129,10 @@ extension HomeView {
             }
         )
     }
+    #endif
 }
 
 enum HomeDestination: Hashable {
-    case project
     case task
 }
 
