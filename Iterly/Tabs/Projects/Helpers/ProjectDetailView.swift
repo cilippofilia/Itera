@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ProjectDetailView: View {
-    @State private var isEditing: Bool = false
-
     let project: Project
 
     var body: some View {
@@ -101,16 +99,7 @@ struct ProjectDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding([.horizontal, .bottom])
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Edit", systemImage: "square.and.pencil") {
-                    isEditing = true
-                }
-            }
-        }
-        .sheet(isPresented: $isEditing) {
-            EditProjectDetails(project: project)
-        }
+        .scrollBounceBehavior(.basedOnSize)
         .navigationDestination(for: UUID.self) { taskId in
             if let task = project.tasks?.first(where: { $0.id == taskId }) {
                 TaskDetailView(task: task)

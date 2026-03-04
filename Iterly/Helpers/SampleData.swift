@@ -77,7 +77,7 @@ enum SampleData {
         )
 
         let onboardingTasks = [
-            ProjectTask(title: "Design the welcome flow", status: .inProgress, priority: .high, project: onboarding),
+            ProjectTask(title: "Design the welcome flow", details: "Design onboarding to explain key areas of the app - Learn, Cocktails, Cabinet.", status: .inProgress, priority: .high, project: onboarding),
             ProjectTask(title: "Write onboarding copy", status: .notStarted, priority: .normal, project: onboarding),
             ProjectTask(title: "QA localization", status: .notStarted, priority: .normal, project: onboarding),
             ProjectTask(title: "NA Release", status: .done, priority: .normal, project: onboarding),

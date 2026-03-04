@@ -11,20 +11,62 @@ struct TaskDetailView: View {
     let task: ProjectTask
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(task.title)
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.primary)
+        ScrollView {
+            VStack(alignment: .leading) {
+                Text(task.title)
+                    .font(.title)
+                    .bold()
+                    .foregroundStyle(.primary)
 
-            if let details = task.details, !details.isEmpty {
-                Text(details)
-                    .foregroundStyle(.secondary)
+                if let details = task.details, !details.isEmpty {
+                    Text(details)
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom)
+                }
+
+                GroupBox("Info") {
+                    LabeledContent("Status") {
+                        Text(task.status.title)
+                    }
+
+                    LabeledContent("Priority", value: task.priority.title)
+
+                    if let startDate = task.startDate {
+                        LabeledContent("Start Date") {
+                            Text(startDate, format: .dateTime.month().day().year())
+                        }
+                    }
+
+                    if let dueDate = task.dueDate {
+                        LabeledContent("Due Date") {
+                            Text(dueDate, format: .dateTime.month().day().year())
+                        }
+                    }
+
+                    LabeledContent("Created") {
+                        Text(task.creationDate, format: .dateTime.month().day().year())
+                    }
+
+                    if let projectTitle = task.project?.title {
+                        LabeledContent("Project", value: projectTitle)
+                    }
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding([.horizontal, .bottom])
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .navigationTitle("Task")
+        .scrollBounceBehavior(.basedOnSize)
+    }
+
+    private func statusBadgeColor(for status: TaskStatus) -> Color {
+        switch status {
+        case .inProgress:
+            return .yellow
+        case .done:
+            return .green
+        case .notStarted:
+            return .secondary
+        }
     }
 }
 
