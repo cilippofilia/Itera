@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		18EAF1F12F4F72660007C73B /* Itera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Itera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18EAF1F12F4F72660007C73B /* Iterly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Iterly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,7 +40,7 @@
 		18EAF1F22F4F72660007C73B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18EAF1F12F4F72660007C73B /* Itera.app */,
+				18EAF1F12F4F72660007C73B /* Iterly.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18EAF1F02F4F72660007C73B /* Itera */ = {
+		18EAF1F02F4F72660007C73B /* Iterly */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18EAF1FC2F4F72670007C73B /* Build configuration list for PBXNativeTarget "Itera" */;
+			buildConfigurationList = 18EAF1FC2F4F72670007C73B /* Build configuration list for PBXNativeTarget "Iterly" */;
 			buildPhases = (
 				18EAF1ED2F4F72660007C73B /* Sources */,
 				18EAF1EE2F4F72660007C73B /* Frameworks */,
@@ -63,11 +63,11 @@
 			fileSystemSynchronizedGroups = (
 				18EAF1F32F4F72660007C73B /* Itera */,
 			);
-			name = Itera;
+			name = Iterly;
 			packageProductDependencies = (
 			);
 			productName = Itero;
-			productReference = 18EAF1F12F4F72660007C73B /* Itera.app */;
+			productReference = 18EAF1F12F4F72660007C73B /* Iterly.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 18EAF1EC2F4F72660007C73B /* Build configuration list for PBXProject "Itera" */;
+			buildConfigurationList = 18EAF1EC2F4F72660007C73B /* Build configuration list for PBXProject "Iterly" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18EAF1F02F4F72660007C73B /* Itera */,
+				18EAF1F02F4F72660007C73B /* Iterly */,
 			);
 		};
 /* End PBXProject section */
@@ -327,7 +327,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18EAF1EC2F4F72660007C73B /* Build configuration list for PBXProject "Itera" */ = {
+		18EAF1EC2F4F72660007C73B /* Build configuration list for PBXProject "Iterly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18EAF1FA2F4F72670007C73B /* Debug */,
@@ -336,7 +336,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18EAF1FC2F4F72670007C73B /* Build configuration list for PBXNativeTarget "Itera" */ = {
+		18EAF1FC2F4F72670007C73B /* Build configuration list for PBXNativeTarget "Iterly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18EAF1FD2F4F72670007C73B /* Debug */,
