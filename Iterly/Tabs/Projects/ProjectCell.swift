@@ -33,5 +33,5 @@ struct ProjectCell: View {
 }
 
 #Preview {
-    ProjectCell(title: "Drinko", tasksCount: 4, progressValue: 5.5, progressColor: .red)
+    ProjectCell(title: "Drinko", tasksCount: 4, progressValue: 0.1, progressColor: .red)
 }

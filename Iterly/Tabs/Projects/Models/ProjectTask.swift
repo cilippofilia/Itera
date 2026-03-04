@@ -17,7 +17,7 @@ final class ProjectTask: Identifiable {
     var dueDate: Date? = nil
     var priority: TaskPriority = TaskPriority.default
     var creationDate: Date = Date.now
-    var project: Project? = nil
+    var project: Project
 
     init(
         id: UUID = UUID(),
@@ -27,7 +27,7 @@ final class ProjectTask: Identifiable {
         dueDate: Date? = nil,
         priority: TaskPriority = TaskPriority.default,
         creationDate: Date = Date.now,
-        project: Project? = nil
+        project: Project
     ) {
         self.id = id
         self.title = title

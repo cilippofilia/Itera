@@ -21,11 +21,8 @@ final class HomeViewModel {
 
     func eraseAllData(modelContext: ModelContext) {
         do {
+            try modelContext.delete(model: ProjectTask.self)
             try modelContext.delete(model: Project.self)
-            try modelContext.delete(
-                model: ProjectTask.self,
-                where: #Predicate { $0.project == nil }
-            )
 
             try modelContext.save()
         } catch {

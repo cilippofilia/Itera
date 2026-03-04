@@ -58,21 +58,18 @@ struct TaskDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
-
-                    if let projectTitle = task.project?.title {
-                        LabeledContent("Project", value: projectTitle)
-                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding([.horizontal, .bottom])
         }
+        .navigationTitle(task.project.title)
         .scrollBounceBehavior(.basedOnSize)
     }
 }
 
 #Preview {
     NavigationStack {
-        TaskDetailView(task: SampleData.makeProjects()[0].tasks?[0] ?? .init(id: UUID(), title: "Test title", details: "Test details", status: .default, dueDate: .distantFuture, priority: .default, creationDate: .now, project: nil))
+        TaskDetailView(task: SampleData.makeProjects()[0].tasks?[0] ?? .init(id: UUID(), title: "Test title", details: "Test details", status: .default, dueDate: .distantFuture, priority: .default, creationDate: .now, project: SampleData.makeProjects()[0]))
     }
 }
