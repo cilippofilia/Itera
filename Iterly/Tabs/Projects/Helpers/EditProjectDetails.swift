@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 02/03/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct EditProjectDetails: View {
@@ -17,4 +18,5 @@ struct EditProjectDetails: View {
 
 #Preview {
     EditProjectDetails(project: SampleData.makeProjects()[0])
+        .modelContainer(SampleData.previewContainer)
 }

@@ -13,7 +13,7 @@ struct HomeView: View {
     static let homeTag: String? = "Home"
 
     @Environment(\.modelContext) private var modelContext
-    @State private var viewModel = HomeViewModel()
+    @State private var viewModel = ProjectViewModel()
 
     @Query(
         filter: #Predicate<Project> { $0.isPinned == true },
@@ -36,7 +36,7 @@ struct HomeView: View {
         NavigationStack {
             Group {
                 if pinnedProjects.isEmpty, projects.isEmpty, tasks.isEmpty {
-                    unavailableView
+                    UnavailableProjectsView()
                 } else {
                     availableView
                 }
@@ -46,7 +46,6 @@ struct HomeView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     ereaseAllDataButton
                     addSampleDataButton
-                    createProjectButton
                 }
             }
         }
@@ -54,17 +53,6 @@ struct HomeView: View {
 }
 
 extension HomeView {
-    private var unavailableView: some View {
-        ContentUnavailableView {
-            Label("No projects found", systemImage: "folder.badge.questionmark")
-        } description: {
-            Text("There are no active projects at the moment. Create one to get started.")
-        } actions: {
-            addSampleDataButton
-            createProjectButton
-        }
-    }
-
     private var availableView: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -88,16 +76,6 @@ extension HomeView {
             }
         }
         .contentMargins(.bottom, 70, for: .scrollContent)
-    }
-
-    var createProjectButton: some View {
-        Button(
-            "Add Project",
-            systemImage: "plus",
-            action: {
-                viewModel.createProject(modelContext: modelContext)
-            }
-        )
     }
 
     var addSampleDataButton: some View {

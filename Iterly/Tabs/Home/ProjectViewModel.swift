@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 @Observable
-final class HomeViewModel {
+final class ProjectViewModel {
     func createProject(modelContext: ModelContext) {
         let project = Project(title: "New Project")
         modelContext.insert(project)

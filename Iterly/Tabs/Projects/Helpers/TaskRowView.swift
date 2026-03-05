@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 05/03/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct TaskRowView: View {
@@ -87,4 +88,5 @@ struct TaskRowView: View {
     TaskRowView(
         task: SampleData.makeProjects()[0].tasks?[0] ?? .init(project: SampleData.makeProjects()[0])
     )
+    .modelContainer(SampleData.previewContainer)
 }

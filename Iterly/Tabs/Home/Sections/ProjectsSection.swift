@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 25/02/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct ProjectsSection: View {
@@ -54,4 +55,5 @@ struct ProjectsSection: View {
     NavigationStack {
         ProjectsSection(projects: SampleData.makeProjects())
     }
+    .modelContainer(SampleData.previewContainer)
 }

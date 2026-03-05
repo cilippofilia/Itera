@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 25/02/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct TaskDetailView: View {
@@ -90,4 +91,5 @@ struct TaskDetailView: View {
     NavigationStack {
         TaskDetailView(task: task)
     }
+    .modelContainer(SampleData.previewContainer)
 }

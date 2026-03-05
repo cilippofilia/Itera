@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 25/02/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct TasksSection: View {
@@ -32,4 +33,5 @@ struct TasksSection: View {
             TasksSection(tasks: SampleData.makeProjects().flatMap { $0.tasks ?? [] })
         }
     }
+    .modelContainer(SampleData.previewContainer)
 }

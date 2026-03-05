@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 25/02/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct PinnedProjectsSection: View {
@@ -56,4 +57,5 @@ struct PinnedProjectsSection: View {
     NavigationStack {
         PinnedProjectsSection(projects: SampleData.makeProjects())
     }
+    .modelContainer(SampleData.previewContainer)
 }

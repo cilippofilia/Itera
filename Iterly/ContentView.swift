@@ -22,9 +22,9 @@ struct ContentView: View {
                 ProjectsView()
             }
 
-            Tab("Settings", systemImage: "gear", value: SettingsView.settingsTag) {
-                SettingsView()
-            }
+//            Tab("Settings", systemImage: "gear", value: SettingsView.settingsTag) {
+//                SettingsView()
+//            }
         }
     }
 }

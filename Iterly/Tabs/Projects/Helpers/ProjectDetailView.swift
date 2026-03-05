@@ -5,6 +5,7 @@
 //  Created by Filippo Cilia on 02/03/2026.
 //
 
+import SwiftData
 import SwiftUI
 
 struct ProjectDetailView: View {
@@ -109,10 +110,12 @@ struct ProjectDetailView: View {
     NavigationStack {
         ProjectDetailView(project: SampleData.makeProjects()[0])
     }
+    .modelContainer(SampleData.previewContainer)
 }
 #Preview("Dark") {
     NavigationStack {
         ProjectDetailView(project: SampleData.makeProjects()[0])
             .preferredColorScheme(.dark)
     }
+    .modelContainer(SampleData.previewContainer)
 }
