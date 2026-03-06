@@ -85,9 +85,15 @@ enum SampleData {
             ProjectTask(title: "Design the welcome flow", details: "Design onboarding to explain key areas of the app - Learn, Cocktails, Cabinet.", status: .inProgress, priority: .high, project: onboarding),
             ProjectTask(title: "Write onboarding copy", status: .notStarted, priority: .medium, project: onboarding),
             ProjectTask(title: "QA localization", status: .notStarted, priority: .medium, project: onboarding),
+            ProjectTask(title: "Migrate analytics events", status: .blocked, priority: .high, project: onboarding),
+            ProjectTask(title: "Legal review", status: .blocked, priority: .medium, project: onboarding),
+            ProjectTask(title: "Instrument onboarding metrics", status: .inProgress, priority: .high, project: onboarding),
+            ProjectTask(title: "Collect beta feedback", status: .inProgress, priority: .low, project: onboarding),
+            ProjectTask(title: "Finalize tutorial video", status: .notStarted, priority: .low, project: onboarding),
             ProjectTask(title: "NA Release", status: .done, priority: .medium, project: onboarding),
             ProjectTask(title: "IR Release", status: .done, priority: .medium, project: onboarding),
-            ProjectTask(title: "UK Release", status: .done, priority: .medium, project: onboarding)
+            ProjectTask(title: "UK Release", status: .done, priority: .medium, project: onboarding),
+            ProjectTask(title: "App Store screenshots", status: .done, priority: .low, project: onboarding)
         ]
         onboarding.tasks = onboardingTasks
 

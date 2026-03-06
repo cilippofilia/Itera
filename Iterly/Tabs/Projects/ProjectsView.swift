@@ -27,9 +27,10 @@ struct ProjectsView: View {
                         NavigationLink(value: project) {
                             ProjectCell(
                                 title: project.title,
-                                tasksCount: project.tasks?.count ?? 0,
-                                progressValue: project.completionAmount,
-                                progressColor: project.highlight.color
+                                tasks: project.tasks ?? [],
+                                blockedAmount: project.blockedAmount,
+                                inProgressAmount: project.inProgressAmount,
+                                doneAmount: project.doneAmount
                             )
                         }
                         .buttonStyle(.plain)
@@ -37,6 +38,8 @@ struct ProjectsView: View {
                     .listStyle(.insetGrouped)
                 }
             }
+            .scrollBounceBehavior(.basedOnSize)
+            .listRowSpacing(8)
             .navigationTitle("Projects")
             .navigationDestination(for: Project.self) { project in
                 ProjectDetailView(project: project)
@@ -60,7 +63,12 @@ struct ProjectsView: View {
     }
 }
 
-#Preview {
+#Preview("Light") {
     ProjectsView()
         .modelContainer(SampleData.previewContainer)
+}
+#Preview("Dark") {
+    ProjectsView()
+        .modelContainer(SampleData.previewContainer)
+        .preferredColorScheme(.dark)
 }

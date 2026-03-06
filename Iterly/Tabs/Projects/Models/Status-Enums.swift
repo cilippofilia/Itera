@@ -35,7 +35,7 @@ enum ProjectStatus: String, CaseIterable, Codable {
     var backgroundColor: Color {
         switch self {
         case .plan:
-            return .secondary
+            return .secondary.opacity(0.5)
         case .dev:
             return .yellow
         case .beta:
@@ -74,7 +74,7 @@ enum TaskStatus: String, CaseIterable, Codable {
         case .blocked:
             return .red
         case .notStarted:
-            return .secondary
+            return .secondary.opacity(0.5)
         case .inProgress:
             return .yellow
         case .done:

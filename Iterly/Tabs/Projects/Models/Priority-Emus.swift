@@ -31,7 +31,7 @@ enum ProjectPriority: String, CaseIterable, Codable {
     var backgroundColor: Color {
         switch self {
         case .notSet:
-            return .secondary
+            return .secondary.opacity(0.5)
         case .low:
             return .blue
         case .medium:
@@ -78,7 +78,7 @@ enum TaskPriority: String, CaseIterable, Codable {
     var backgroundColor: Color {
         switch self {
         case .notSet:
-            return .secondary
+            return .secondary.opacity(0.5)
         case .low:
             return .blue
         case .medium:
