@@ -16,6 +16,7 @@ struct ProjectsView: View {
     @State private var viewModel = ProjectViewModel()
     @State private var projectPendingDeletion: Project?
     @State private var showDeletionAlert: Bool = false
+    @State private var showPinLimitAlert: Bool = false
 
     @Query(sort: [
         SortDescriptor(\Project.lastUpdated, order: .reverse),
@@ -44,8 +45,9 @@ struct ProjectsView: View {
                             )
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 Button(action: {
-                                    project.isPinned.toggle()
-                                    project.touch()
+                                    if viewModel.togglePin(project: project, modelContext: modelContext) == false {
+                                        showPinLimitAlert = true
+                                    }
                                 }) {
                                     Label("Pin", systemImage: "pin")
                                 }
@@ -82,6 +84,11 @@ struct ProjectsView: View {
             }, message: {
                 Text("This will permanently remove the project and its tasks.")
             })
+            .alert("Can't Pin Project", isPresented: $showPinLimitAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Only 4 projects can be pinned at the same time.")
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     createProjectButton

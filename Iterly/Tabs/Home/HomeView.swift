@@ -53,6 +53,13 @@ struct HomeView: View {
 }
 
 extension HomeView {
+    private var totalProjectsCount: Int {
+        pinnedProjects.count + projects.count
+    }
+    private var showMore: Bool {
+        return totalProjectsCount > 5
+    }
+
     private var availableView: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -68,8 +75,12 @@ extension HomeView {
                 PinnedProjectsSection(projects: pinnedProjects)
                     .padding(.bottom)
 
-                ProjectsSection(projects: Array(projects.prefix(5)))
-                    .padding(.bottom)
+                ProjectsSection(
+                    projects: Array(projects.prefix(5)),
+                    allProjectsCount: totalProjectsCount,
+                    showMore: showMore
+                )
+                .padding(.bottom)
 
                 TasksSection(tasks: Array(upcomingTasks.prefix(10)))
                     .padding(.bottom)

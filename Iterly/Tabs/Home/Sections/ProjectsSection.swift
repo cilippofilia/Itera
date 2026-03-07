@@ -9,7 +9,10 @@ import SwiftData
 import SwiftUI
 
 struct ProjectsSection: View {
+    @AppStorage("selectedView") private var selectedView: String?
     let projects: [Project]?
+    let allProjectsCount: Int
+    let showMore: Bool
 
     var columns: [GridItem] {
         [GridItem(.flexible()), GridItem(.flexible())]
@@ -23,7 +26,7 @@ struct ProjectsSection: View {
                         .padding(.trailing, 4)
                     Text("Projects")
                         .padding(.trailing, 2)
-                    Text("(\(projects.count))")
+                    Text("(\(allProjectsCount))")
                 }
                 .font(.headline)
                 .padding(.horizontal)
@@ -44,6 +47,13 @@ struct ProjectsSection: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    if showMore {
+                        SeeAllCellView(action: {
+                            selectedView = ProjectsView.projectsTag
+                        })
+                        .background(Color.secondary.gradient.opacity(0.2))
+                        .clipShape(.rect(cornerRadius: 12))
+                    }
                 }
                 .padding(.horizontal)
             }
@@ -53,7 +63,7 @@ struct ProjectsSection: View {
 
 #Preview {
     NavigationStack {
-        ProjectsSection(projects: SampleData.makeProjects())
+        ProjectsSection(projects: SampleData.makeProjects(), allProjectsCount: 6, showMore: true)
     }
     .modelContainer(SampleData.makePreviewContainer())
 }

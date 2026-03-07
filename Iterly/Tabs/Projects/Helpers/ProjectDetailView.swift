@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ProjectDetailView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var viewModel = ProjectViewModel()
+    @State private var showPinLimitAlert: Bool = false
     @Bindable var project: Project
 
     var body: some View {
@@ -115,14 +117,20 @@ struct ProjectDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    project.isPinned.toggle()
-                    project.touch()
+                    if viewModel.togglePin(project: project, modelContext: modelContext) == false {
+                        showPinLimitAlert = true
+                    }
                 }) {
                     Image(systemName: "pin")
                         .rotationEffect(Angle(degrees: 45))
                         .symbolVariant(project.isPinned ? .fill : .none)
                 }
             }
+        }
+        .alert("Can't Pin Project", isPresented: $showPinLimitAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Only 4 projects can be pinned at the same time.")
         }
     }
 
