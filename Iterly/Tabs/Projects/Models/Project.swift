@@ -15,7 +15,6 @@ final class Project: Identifiable, Hashable {
     var details: String? = nil
     var priority: ProjectPriority = ProjectPriority.default
     var status: ProjectStatus = ProjectStatus.default
-    var highlight: ProjectColor = ProjectColor.accentColor
     var creationDate: Date = Date.now
     var lastUpdated: Date = Date.now
     var isPinned: Bool = false
@@ -52,7 +51,6 @@ final class Project: Identifiable, Hashable {
         details: String? = nil,
         projectPriority: ProjectPriority = ProjectPriority.default,
         projectStatus: ProjectStatus = ProjectStatus.default,
-        color: ProjectColor = ProjectColor.accentColor,
         tasks: [ProjectTask]? = [],
         creationDate: Date = Date.now,
         lastUpdated: Date = Date.now,
@@ -64,7 +62,6 @@ final class Project: Identifiable, Hashable {
         self.details = details
         self.priority = projectPriority
         self.status = projectStatus
-        self.highlight = color
         self.tasks = tasks
         self.creationDate = creationDate
         self.lastUpdated = lastUpdated

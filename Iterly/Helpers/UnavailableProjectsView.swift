@@ -5,12 +5,10 @@
 //  Created by Filippo Cilia on 05/03/2026.
 //
 
-import SwiftData
 import SwiftUI
 
 struct UnavailableProjectsView: View {
-    @Environment(\.modelContext) private var modelContext
-    @State private var viewModel = ProjectViewModel()
+    @State private var showAddProjectSheet = false
 
     var body: some View {
         ContentUnavailableView {
@@ -18,8 +16,10 @@ struct UnavailableProjectsView: View {
         } description: {
             Text("There are no active projects at the moment. Create one to get started.")
         } actions: {
-            addSampleDataButton
             createProjectButton
+        }
+        .sheet(isPresented: $showAddProjectSheet) {
+            ProjectFormView()
         }
     }
 
@@ -27,28 +27,13 @@ struct UnavailableProjectsView: View {
         Button(
             "Add Project",
             systemImage: "plus",
-            action: createProject
+            action: {
+                showAddProjectSheet = true
+            }
         )
-    }
-
-    private var addSampleDataButton: some View {
-        Button(
-            "Add Data",
-            systemImage: "sparkles",
-            action: addSampleData
-        )
-    }
-
-    private func createProject() {
-        viewModel.createProject(modelContext: modelContext)
-    }
-
-    private func addSampleData() {
-        viewModel.addSampleData(modelContext: modelContext)
     }
 }
 
 #Preview {
     UnavailableProjectsView()
-        .modelContainer(SampleData.makePreviewContainer())
 }

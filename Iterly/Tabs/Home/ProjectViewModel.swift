@@ -6,23 +6,11 @@ import SwiftData
 final class ProjectViewModel {
     private let maxPinnedProjects = 4
 
-    func createProject(modelContext: ModelContext) {
-        let project = Project(title: "New Project")
-        modelContext.insert(project)
-
-        do {
-            try modelContext.save()
-        } catch {
-            assertionFailure("Failed to create project: \(error)")
-        }
-    }
-
     func createProject(
         title: String,
         details: String,
         priority: ProjectPriority,
         status: ProjectStatus,
-        color: ProjectColor,
         isPinned: Bool,
         version: String,
         build: String,
@@ -36,7 +24,6 @@ final class ProjectViewModel {
             details: trimmedDetails.isEmpty ? nil : trimmedDetails,
             projectPriority: priority,
             projectStatus: status,
-            color: color,
             creationDate: .now,
             lastUpdated: .now,
             isPinned: false

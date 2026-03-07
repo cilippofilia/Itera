@@ -96,7 +96,7 @@ struct ProjectsView: View {
                 }
             }
             .sheet(isPresented: $showAddProjectSheet) {
-                AddProjectView()
+                ProjectFormView()
             }
             .overlay(alignment: .bottom) {
                 if !projects.isEmpty {

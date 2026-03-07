@@ -1,5 +1,5 @@
 //
-//  AddProjectView.swift
+//  ProjectFormView.swift
 //  Iterly
 //
 //  Created by Filippo Cilia on 07/03/2026.
@@ -8,7 +8,7 @@
 import SwiftData
 import SwiftUI
 
-struct AddProjectView: View {
+struct ProjectFormView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
@@ -19,9 +19,8 @@ struct AddProjectView: View {
     @State private var build = ""
     @State private var priority: ProjectPriority = .default
     @State private var status: ProjectStatus = .default
-    @State private var color: ProjectColor = .accentColor
     @State private var isPinned = false
-    @State private var isEditing = false
+    @State private var isEditing = true
 
     private let project: Project?
 
@@ -34,7 +33,6 @@ struct AddProjectView: View {
         _build = State(initialValue: project?.currentRelease?.build ?? "")
         _priority = State(initialValue: project?.priority ?? .default)
         _status = State(initialValue: project?.status ?? .default)
-        _color = State(initialValue: project?.highlight ?? .accentColor)
         _isPinned = State(initialValue: project?.isPinned ?? false)
     }
 
@@ -51,16 +49,13 @@ struct AddProjectView: View {
                         .lineLimit(3...6)
                 }
 
-                Section("Settings") {
-                    TextField("Release version", text: $version)
-                    TextField("Build number", text: $build)
+                Section("Info") {
                     Picker("Status", selection: $status) {
                         ForEach(ProjectStatus.allCases, id: \.self) { status in
                             Text(status.title)
                                 .tag(status)
                         }
                     }
-                    .pickerStyle(.navigationLink)
 
                     Picker("Priority", selection: $priority) {
                         ForEach(ProjectPriority.allCases, id: \.self) { priority in
@@ -68,11 +63,11 @@ struct AddProjectView: View {
                                 .tag(priority)
                         }
                     }
-                    .pickerStyle(.navigationLink)
                 }
 
-                Section("Color") {
-                    ProjectColorPickerGrid(selection: $color)
+                Section("Release info") {
+                    TextField("Version", text: $version)
+                    TextField("Build number", text: $build)
                 }
 
                 if isEditing {
@@ -80,23 +75,18 @@ struct AddProjectView: View {
                         Button(action: {
                             closeProject()
                         }) {
-                            Label("Close Project", systemImage: "trash")
+                            Text("Close Project")
                         }
-                        .buttonStyle(.plain)
-                        .padding(8)
-                        .frame(maxWidth: .infinity)
-                        .background(.ultraThinMaterial)
-                        .clipShape(.rect(cornerRadius: 8, style: .continuous))
 
                         Button(role: .destructive, action: {
                             deleteProject()
                         }) {
                             Label("Delete Project", systemImage: "trash")
                         }
-                        .padding(8)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red.opacity(0.2))
-                        .clipShape(.rect(cornerRadius: 8, style: .continuous))
+                        .foregroundStyle(.red)
+                    } footer: {
+                        Text("Closing a project will hide it from the list; deleting it will also delete all tasks associated with it.")
+                            .font(.footnote)
                     }
                 }
             }
@@ -130,7 +120,6 @@ struct AddProjectView: View {
             details: details,
             priority: priority,
             status: status,
-            color: color,
             isPinned: isPinned,
             version: version,
             build: build,
@@ -147,7 +136,6 @@ struct AddProjectView: View {
         project.details = trimmedDetails.isEmpty ? nil : trimmedDetails
         project.priority = priority
         project.status = status
-        project.highlight = color
         project.isPinned = isPinned
         project.touch()
 
@@ -183,6 +171,6 @@ struct AddProjectView: View {
 }
 
 #Preview {
-    AddProjectView()
+    ProjectFormView()
         .modelContainer(SampleData.makePreviewContainer())
 }

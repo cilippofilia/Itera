@@ -12,6 +12,7 @@ struct ProjectDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ProjectViewModel()
     @State private var showPinLimitAlert: Bool = false
+    @State private var projectToEdit: Project?
     @Bindable var project: Project
 
     var body: some View {
@@ -106,29 +107,6 @@ struct ProjectDetailView: View {
                 }
 
                 pinButtonView
-
-                HStack {
-                    Button(action: {
-                        modelContext.delete(project)
-                    }) {
-                        Label("Close Project", systemImage: "trash")
-                    }
-                    .buttonStyle(.plain)
-                    .padding(8)
-                    .frame(maxWidth: .infinity)
-                    .background(.ultraThinMaterial)
-                    .clipShape(.rect(cornerRadius: 8, style: .continuous))
-
-                    Button(role: .destructive, action: {
-                        modelContext.delete(project)
-                    }) {
-                        Label("Delete Project", systemImage: "trash")
-                    }
-                    .padding(8)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.red.opacity(0.2))
-                    .clipShape(.rect(cornerRadius: 8, style: .continuous))
-                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding([.horizontal, .bottom])
@@ -141,8 +119,13 @@ struct ProjectDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                // edit project button
+                Button("Edit", systemImage: "pencil.line") {
+                    projectToEdit = project
+                }
             }
+        }
+        .sheet(item: $projectToEdit) { project in
+            ProjectFormView(project: project)
         }
         .alert("Can't Pin Project", isPresented: $showPinLimitAlert) {
             Button("OK", role: .cancel) {}
