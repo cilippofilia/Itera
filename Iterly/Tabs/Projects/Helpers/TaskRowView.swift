@@ -27,6 +27,10 @@ struct TaskRowView: View {
             .buttonStyle(.plain)
 
             NavigationLink(value: task.id) {
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .frame(width: 3)
+                    .foregroundStyle(isDone ? .secondary.opacity(0.5) : task.priority.badgeBackgroundColor)
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(task.title)
                         .foregroundStyle(isDone ? .secondary : .primary)
@@ -48,12 +52,6 @@ struct TaskRowView: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                }
-                .overlay(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .frame(width: 3)
-                        .foregroundStyle(isDone ? .secondary.opacity(0.5) : task.priority.badgeBackgroundColor)
-                        .offset(x: -6)
                 }
             }
             .buttonStyle(.plain)
@@ -98,5 +96,6 @@ struct TaskRowView: View {
     TaskRowView(
         task: SampleData.makeProjects()[0].tasks?[0] ?? .init(project: SampleData.makeProjects()[0])
     )
+    .frame(height: 55)
     .modelContainer(SampleData.makePreviewContainer())
 }

@@ -16,6 +16,7 @@ enum ProjectStatus: String, CaseIterable, Codable {
     case beta
     case live
     case blocked
+    case closed
 
     var title: String {
         switch self {
@@ -29,6 +30,8 @@ enum ProjectStatus: String, CaseIterable, Codable {
             return "Live"
         case .blocked:
             return "Blocked"
+        case .closed:
+            return "Closed"
         }
     }
 
@@ -44,6 +47,8 @@ enum ProjectStatus: String, CaseIterable, Codable {
             return .green
         case .blocked:
             return .red
+        case .closed:
+            return .purple
         }
     }
 }

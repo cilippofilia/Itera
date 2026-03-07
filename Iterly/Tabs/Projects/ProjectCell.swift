@@ -20,7 +20,7 @@ struct ProjectCell: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(title)
-                .bold()
+                .font(.headline)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
 

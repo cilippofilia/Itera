@@ -24,6 +24,8 @@ final class ProjectViewModel {
         status: ProjectStatus,
         color: ProjectColor,
         isPinned: Bool,
+        version: String,
+        build: String,
         modelContext: ModelContext
     ) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -37,8 +39,11 @@ final class ProjectViewModel {
             color: color,
             creationDate: .now,
             lastUpdated: .now,
-            isPinned: isPinned
+            isPinned: false
         )
+
+        let release = ProjectRelease(version: version, build: build, project: project)
+        project.currentRelease = release
 
         modelContext.insert(project)
 
