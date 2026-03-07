@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ProjectRowView: View {
     let title: String
+    let statusTitle: String
+    let statusColor: Color
+    
     let tasks: [ProjectTask]
 
     let blockedAmount: CGFloat
@@ -17,10 +20,15 @@ struct ProjectRowView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text(title)
-                .bold()
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+            HStack {
+                Text(title)
+                    .bold()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer()
+                Text(statusTitle)
+                    .badgeStyle(backgroundColor: statusColor)
+            }
 
             Text(String.localizedStringWithFormat(NSLocalizedString("tasks_count", comment: "Tasks count"), tasks.count))
                 .font(.caption)
@@ -37,12 +45,12 @@ struct ProjectRowView: View {
                         .tint(tasks.first(where: { $0.status == .blocked })?.status.backgroundColor)
                 }
         }
-        .padding()
-        .frame(maxWidth: .infinity, minHeight: 70, alignment: .leading)
+        .padding(.horizontal, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
     let data = SampleData.makeProjects()[0]
-    ProjectRowView(title: data.title, tasks: data.tasks ?? [], blockedAmount: 0.1, inProgressAmount: 0.3, doneAmount: 0.4)
+    ProjectRowView(title: data.title, statusTitle: data.status.title, statusColor: data.status.backgroundColor, tasks: data.tasks ?? [], blockedAmount: 0.1, inProgressAmount: 0.3, doneAmount: 0.4)
 }

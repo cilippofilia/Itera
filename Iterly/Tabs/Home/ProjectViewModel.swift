@@ -19,6 +19,16 @@ final class ProjectViewModel {
         SampleData.insertSample(in: modelContext)
     }
 
+    func deleteProject(_ project: Project, modelContext: ModelContext) {
+        modelContext.delete(project)
+
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Failed to delete project: \(error)")
+        }
+    }
+
     func eraseAllData(modelContext: ModelContext) {
         do {
             try modelContext.delete(model: ProjectTask.self)

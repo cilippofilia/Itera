@@ -55,5 +55,5 @@ struct ProjectsSection: View {
     NavigationStack {
         ProjectsSection(projects: SampleData.makeProjects())
     }
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }

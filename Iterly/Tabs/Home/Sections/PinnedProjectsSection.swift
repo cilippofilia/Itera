@@ -58,5 +58,5 @@ struct PinnedProjectsSection: View {
     NavigationStack {
         PinnedProjectsSection(projects: SampleData.makeProjects())
     }
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }

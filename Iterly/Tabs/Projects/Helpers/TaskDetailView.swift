@@ -96,5 +96,5 @@ struct TaskDetailView: View {
     NavigationStack {
         TaskDetailView(task: task)
     }
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }

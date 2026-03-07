@@ -18,5 +18,5 @@ struct EditProjectDetails: View {
 
 #Preview {
     EditProjectDetails(project: SampleData.makeProjects()[0])
-        .modelContainer(SampleData.previewContainer)
+        .modelContainer(SampleData.makePreviewContainer())
 }

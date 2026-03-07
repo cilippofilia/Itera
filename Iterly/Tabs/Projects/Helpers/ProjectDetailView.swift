@@ -156,12 +156,12 @@ struct ProjectDetailView: View {
     NavigationStack {
         ProjectDetailView(project: SampleData.makeProjects()[0])
     }
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }
 #Preview("Dark") {
     NavigationStack {
         ProjectDetailView(project: SampleData.makeProjects()[0])
             .preferredColorScheme(.dark)
     }
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }

@@ -12,7 +12,10 @@ struct ProjectsView: View {
     static let projectsTag: String? = "Projects"
 
     @Environment(\.modelContext) private var modelContext
+
     @State private var viewModel = ProjectViewModel()
+    @State private var projectPendingDeletion: Project?
+    @State private var showDeletionAlert: Bool = false
 
     @Query(sort: \Project.creationDate, order: .reverse)
     private var projects: [Project]
@@ -29,6 +32,8 @@ struct ProjectsView: View {
                         NavigationLink(value: project) {
                             ProjectRowView(
                                 title: project.title,
+                                statusTitle: project.status.title,
+                                statusColor: project.status.backgroundColor,
                                 tasks: project.tasks ?? [],
                                 blockedAmount: project.blockedAmount,
                                 inProgressAmount: project.inProgressAmount,
@@ -40,11 +45,15 @@ struct ProjectsView: View {
                                 }) {
                                     Label("Pin", systemImage: "pin")
                                 }
-                                Button(role: .destructive, action: {
-                                    modelContext.delete(project)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(action: {
+                                    projectPendingDeletion = project
+                                    showDeletionAlert = true
                                 }) {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                         }
                         .buttonStyle(.plain)
@@ -59,6 +68,17 @@ struct ProjectsView: View {
             .navigationDestination(for: Project.self) { project in
                 ProjectDetailView(project: project)
             }
+            .alert("Delete Project?", isPresented: $showDeletionAlert, actions: {
+                Button("Delete", role: .destructive) {
+                    guard let project = projectPendingDeletion else { return }
+                    deleteProject(project)
+                }
+                Button("Cancel", role: .cancel) {
+                    projectPendingDeletion = nil
+                }
+            }, message: {
+                Text("This will permanently remove the project and its tasks.")
+            })
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     createProjectButton
@@ -66,19 +86,17 @@ struct ProjectsView: View {
             }
             .overlay(alignment: .bottom) {
                 if !projects.isEmpty {
-                    HStack(spacing: .zero) {
+                    HStack(spacing: 8) {
                         ForEach(orderedStatuses, id: \.self) { status in
                             Circle().fill(status.backgroundColor)
                                 .frame(width: 6, height: 6)
-                                .padding(.trailing, 2)
                             Text(status.title)
                                 .font(.caption2)
-                                .padding(.trailing, 8)
                         }
                     }
                     .padding(8)
                     .background(.ultraThinMaterial)
-                    .clipShape(.rect(cornerRadius: 8, style: .continuous))
+                    .clipShape(.rect(cornerRadius: 12, style: .continuous))
                     .padding(.bottom, 8)
                 }
             }
@@ -94,25 +112,20 @@ struct ProjectsView: View {
             }
         )
     }
+
+    private func deleteProject(_ project: Project) {
+        viewModel.deleteProject(project, modelContext: modelContext)
+        projectPendingDeletion = nil
+        showDeletionAlert = false
+    }
 }
 
 #Preview("Light") {
-    TabView {
-        ProjectsView()
-            .modelContainer(SampleData.previewContainer)
-    }
+    ProjectsView()
+        .modelContainer(SampleData.makePreviewContainer())
 }
 #Preview("Dark") {
-    TabView {
-        ProjectsView()
-            .modelContainer(SampleData.previewContainer)
-            .preferredColorScheme(.dark)
-    }
-}
-#Preview("Dark - no projects") {
-    TabView {
-        ProjectsView()
-            .modelContainer(SampleData.emptyPreviewContainer)
-            .preferredColorScheme(.dark)
-    }
+    ProjectsView()
+        .modelContainer(SampleData.makePreviewContainer())
+        .preferredColorScheme(.dark)
 }

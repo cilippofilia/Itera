@@ -93,5 +93,5 @@ struct TaskRowView: View {
     TaskRowView(
         task: SampleData.makeProjects()[0].tasks?[0] ?? .init(project: SampleData.makeProjects()[0])
     )
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }

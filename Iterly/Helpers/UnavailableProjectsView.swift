@@ -50,5 +50,5 @@ struct UnavailableProjectsView: View {
 
 #Preview {
     UnavailableProjectsView()
-        .modelContainer(SampleData.previewContainer)
+        .modelContainer(SampleData.makePreviewContainer())
 }

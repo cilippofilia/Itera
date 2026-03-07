@@ -110,5 +110,5 @@ extension HomeView {
 
 #Preview {
     HomeView()
-        .modelContainer(SampleData.previewContainer)
+        .modelContainer(SampleData.makePreviewContainer())
 }

@@ -34,5 +34,5 @@ struct TasksSection: View {
             TasksSection(tasks: SampleData.makeProjects().flatMap { $0.tasks ?? [] })
         }
     }
-    .modelContainer(SampleData.previewContainer)
+    .modelContainer(SampleData.makePreviewContainer())
 }
