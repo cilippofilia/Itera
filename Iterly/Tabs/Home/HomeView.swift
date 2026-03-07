@@ -64,6 +64,7 @@ extension HomeView {
         ScrollView {
             VStack(alignment: .leading) {
                 let upcomingTasks = tasks
+                    .filter { $0.project.status != .closed }
                     .filter { $0.status != .done }
                     .sorted { lhs, rhs in
                         if lhs.dueDate != rhs.dueDate {

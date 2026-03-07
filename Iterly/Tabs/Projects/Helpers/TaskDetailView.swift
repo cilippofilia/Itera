@@ -25,7 +25,11 @@ struct TaskDetailView: View {
                         .padding(.bottom)
                 }
 
-                GroupBox("Info") {
+                VStack(alignment: .leading) {
+                    Text("Info")
+                        .bold()
+                        .padding([.horizontal, .top])
+
                     LabeledContent("Status") {
                         Menu {
                             Picker("Status", selection: Binding(
@@ -46,6 +50,7 @@ struct TaskDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    .padding(.horizontal)
 
                     LabeledContent("Priority") {
                         Menu {
@@ -67,19 +72,26 @@ struct TaskDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    .padding([.horizontal, .bottom])
+                }
+                .background(.ultraThinMaterial)
+                .clipShape(.rect(cornerRadius: 8, style: .continuous))
 
-                    DatePicker(
-                        "Due Date",
-                        selection: Binding(
-                            get: { task.dueDate },
-                            set: {
-                                task.dueDate = $0
-                                task.project.touch()
-                            }
-                        ),
-                        displayedComponents: .date
-                    )
-                    .datePickerStyle(.compact)
+                DatePicker(
+                    "Due Date",
+                    selection: Binding(
+                        get: { task.dueDate },
+                        set: {
+                            task.dueDate = $0
+                            task.project.touch()
+                        }
+                    ),
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.compact)
+
+                NavigationLink(value: task.project) {
+                    Label("Go to Project", systemImage: "folder")
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

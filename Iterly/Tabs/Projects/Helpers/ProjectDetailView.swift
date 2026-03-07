@@ -33,7 +33,11 @@ struct ProjectDetailView: View {
                         .padding(.bottom)
                 }
 
-                GroupBox("Info") {
+                VStack(alignment: .leading) {
+                    Text("Info")
+                        .bold()
+                        .padding([.horizontal, .top])
+
                     LabeledContent("Status") {
                         Menu {
                             Picker("Status", selection: Binding(
@@ -54,6 +58,8 @@ struct ProjectDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    .padding(.horizontal)
+
                     LabeledContent("Priority") {
                         Menu {
                             Picker("Priority", selection: Binding(
@@ -74,8 +80,13 @@ struct ProjectDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    .padding(.horizontal)
+
                     LabeledContent("Current Release", value: releaseText(for: project))
+                        .padding([.horizontal, .bottom])
                 }
+                .background(.ultraThinMaterial)
+                .clipShape(.rect(cornerRadius: 8, style: .continuous))
                 .padding(.bottom)
 
                 if !activeTasks.isEmpty {
