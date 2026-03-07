@@ -86,7 +86,6 @@ struct TaskDetailView: View {
             .padding([.horizontal, .bottom])
         }
         .navigationTitle(task.project.title)
-        .scrollBounceBehavior(.basedOnSize)
     }
 }
 

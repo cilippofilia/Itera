@@ -23,6 +23,15 @@ enum ProjectColor: String, CaseIterable, Codable {
     case mint
     case cyan
 
+    var title: String {
+        switch self {
+        case .accentColor:
+            return "Accent Color"
+        default:
+            return rawValue.capitalized
+        }
+    }
+
     var color: Color {
         switch self {
         case .accentColor:

@@ -104,11 +104,36 @@ struct ProjectDetailView: View {
                         TaskRowView(task: task)
                     }
                 }
+
+                pinButtonView
+
+                HStack {
+                    Button(action: {
+                        modelContext.delete(project)
+                    }) {
+                        Label("Close Project", systemImage: "trash")
+                    }
+                    .buttonStyle(.plain)
+                    .padding(8)
+                    .frame(maxWidth: .infinity)
+                    .background(.ultraThinMaterial)
+                    .clipShape(.rect(cornerRadius: 8, style: .continuous))
+
+                    Button(role: .destructive, action: {
+                        modelContext.delete(project)
+                    }) {
+                        Label("Delete Project", systemImage: "trash")
+                    }
+                    .padding(8)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.red.opacity(0.2))
+                    .clipShape(.rect(cornerRadius: 8, style: .continuous))
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding([.horizontal, .bottom])
         }
-        .scrollBounceBehavior(.basedOnSize)
+        .contentMargins(.bottom, 70, for: .scrollContent)
         .navigationDestination(for: UUID.self) { taskId in
             if let task = project.tasks?.first(where: { $0.id == taskId }) {
                 TaskDetailView(task: task)
@@ -116,15 +141,7 @@ struct ProjectDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
-                    if viewModel.togglePin(project: project, modelContext: modelContext) == false {
-                        showPinLimitAlert = true
-                    }
-                }) {
-                    Image(systemName: "pin")
-                        .rotationEffect(Angle(degrees: 45))
-                        .symbolVariant(project.isPinned ? .fill : .none)
-                }
+                // edit project button
             }
         }
         .alert("Can't Pin Project", isPresented: $showPinLimitAlert) {
@@ -165,6 +182,28 @@ struct ProjectDetailView: View {
             project.tasks?.append(newTask)
             project.touch()
         }
+    }
+
+    private var pinButtonView: some View {
+        Button(action: {
+            if viewModel.togglePin(project: project, modelContext: modelContext) == false {
+                showPinLimitAlert = true
+            }
+        }) {
+            HStack {
+                Image(systemName: "pin")
+                    .rotationEffect(Angle(degrees: 45))
+                    .symbolVariant(project.isPinned ? .fill : .none)
+
+                Text(project.isPinned ? "Unpin from" : "Pin to") +
+                Text(" dashboard")
+            }
+        }
+        .buttonStyle(.plain)
+        .padding(8)
+        .background(.ultraThinMaterial)
+        .clipShape(.rect(cornerRadius: 8, style: .continuous))
+        .padding(.top)
     }
 }
 

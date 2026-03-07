@@ -17,6 +17,38 @@ final class ProjectViewModel {
         }
     }
 
+    func createProject(
+        title: String,
+        details: String,
+        priority: ProjectPriority,
+        status: ProjectStatus,
+        color: ProjectColor,
+        isPinned: Bool,
+        modelContext: ModelContext
+    ) {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let project = Project(
+            title: trimmedTitle,
+            details: trimmedDetails.isEmpty ? nil : trimmedDetails,
+            projectPriority: priority,
+            projectStatus: status,
+            color: color,
+            creationDate: .now,
+            lastUpdated: .now,
+            isPinned: isPinned
+        )
+
+        modelContext.insert(project)
+
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Failed to create project: \(error)")
+        }
+    }
+
     func addSampleData(modelContext: ModelContext) {
         SampleData.insertSample(in: modelContext)
     }

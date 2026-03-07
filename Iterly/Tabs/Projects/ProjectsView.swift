@@ -17,6 +17,7 @@ struct ProjectsView: View {
     @State private var projectPendingDeletion: Project?
     @State private var showDeletionAlert: Bool = false
     @State private var showPinLimitAlert: Bool = false
+    @State private var showAddProjectSheet: Bool = false
 
     @Query(sort: [
         SortDescriptor(\Project.lastUpdated, order: .reverse),
@@ -94,6 +95,9 @@ struct ProjectsView: View {
                     createProjectButton
                 }
             }
+            .sheet(isPresented: $showAddProjectSheet) {
+                AddProjectView()
+            }
             .overlay(alignment: .bottom) {
                 if !projects.isEmpty {
                     HStack(spacing: 8) {
@@ -118,7 +122,7 @@ struct ProjectsView: View {
             "Add Project",
             systemImage: "plus",
             action: {
-                viewModel.createProject(modelContext: modelContext)
+                showAddProjectSheet = true
             }
         )
     }
