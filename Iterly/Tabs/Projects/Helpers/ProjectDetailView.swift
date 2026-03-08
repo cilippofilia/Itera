@@ -174,8 +174,14 @@ private extension ProjectDetailView {
     @ViewBuilder
     var currentReleaseLabel: some View {
         if let releaseText = releaseText(for: project) {
-            LabeledContent("Current Release", value: releaseText)
-                .padding([.horizontal, .bottom])
+            HStack {
+                Text("Current Release")
+                Spacer()
+                Text(releaseText)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            .padding([.horizontal, .bottom])
         }
     }
 
@@ -204,8 +210,8 @@ private extension ProjectDetailView {
 
     var noTasksAvailableView: some View {
         ContentUnavailableView(
-            label: { Text("No tasks yet!") },
-            description: { Text("This project has no tasks yet.") },
+            label: { Text("There are no active tasks") },
+            description: { Text("This project has no tasks yet. Press the button below to get started.") },
             actions: {
                 addTaskButton
             }
