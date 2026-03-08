@@ -41,69 +41,67 @@ struct ProjectFormView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Details") {
-                    TextField("Project Title", text: $title)
-                    TextField("Project Details", text: $details, axis: .vertical)
-                        .lineLimit(3...6)
-                }
+        Form {
+            Section("Details") {
+                TextField("Project Title", text: $title)
+                TextField("Project Details", text: $details, axis: .vertical)
+                    .lineLimit(3...6)
+            }
 
-                Section("Info") {
-                    Picker("Status", selection: $status) {
-                        ForEach(ProjectStatus.allCases, id: \.self) { status in
-                            Text(status.title)
-                                .tag(status)
-                        }
-                    }
-
-                    Picker("Priority", selection: $priority) {
-                        ForEach(ProjectPriority.allCases, id: \.self) { priority in
-                            Text(priority.title)
-                                .tag(priority)
-                        }
+            Section("Info") {
+                Picker("Status", selection: $status) {
+                    ForEach(ProjectStatus.allCases, id: \.self) { status in
+                        Text(status.title)
+                            .tag(status)
                     }
                 }
 
-                Section("Release info") {
-                    TextField("Version", text: $version)
-                    TextField("Build number", text: $build)
-                }
-
-                if isEditing {
-                    Section {
-                        Button(action: {
-                            closeProject()
-                        }) {
-                            Text("Close Project")
-                        }
-
-                        Button(role: .destructive, action: {
-                            deleteProject()
-                        }) {
-                            Label("Delete Project", systemImage: "trash")
-                        }
-                        .foregroundStyle(.red)
-                    } footer: {
-                        Text("Closing a project will hide it from the list; deleting it will also delete all tasks associated with it.")
-                            .font(.footnote)
+                Picker("Priority", selection: $priority) {
+                    ForEach(ProjectPriority.allCases, id: \.self) { priority in
+                        Text(priority.title)
+                            .tag(priority)
                     }
                 }
             }
-            .navigationTitle("New Project")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
+
+            Section("Release info") {
+                TextField("Version", text: $version)
+                TextField("Build number", text: $build)
+            }
+
+            if isEditing {
+                Section {
+                    Button(action: {
+                        closeProject()
+                    }) {
+                        Text("Close Project")
                     }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveProject()
+
+                    Button(role: .destructive, action: {
+                        deleteProject()
+                    }) {
+                        Label("Delete Project", systemImage: "trash")
                     }
-                    .disabled(!canSave)
+                    .foregroundStyle(.red)
+                } footer: {
+                    Text("Closing a project will hide it from the list; deleting it will also delete all tasks associated with it.")
+                        .font(.footnote)
                 }
+            }
+        }
+        .navigationTitle("New Project")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    saveProject()
+                }
+                .disabled(!canSave)
             }
         }
     }
@@ -171,6 +169,8 @@ struct ProjectFormView: View {
 }
 
 #Preview {
-    ProjectFormView()
-        .modelContainer(SampleData.makePreviewContainer())
+    NavigationStack {
+        ProjectFormView()
+    }
+    .modelContainer(SampleData.makePreviewContainer())
 }

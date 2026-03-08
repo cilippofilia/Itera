@@ -14,6 +14,7 @@ struct TaskFormView: View {
 
     let project: Project
     private let task: ProjectTask?
+    private let onDelete: (() -> Void)?
 
     @State private var title = ""
     @State private var details = ""
@@ -23,9 +24,10 @@ struct TaskFormView: View {
 
     @State private var isEditing: Bool = false
 
-    init(project: Project, task: ProjectTask? = nil) {
+    init(project: Project, task: ProjectTask? = nil, onDelete: (() -> Void)? = nil) {
         self.project = project
         self.task = task
+        self.onDelete = onDelete
         _isEditing = State(initialValue: task != nil)
         _title = State(initialValue: task?.title ?? "")
         _details = State(initialValue: task?.details ?? "")
@@ -39,67 +41,65 @@ struct TaskFormView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Details") {
-                    TextField("Task Title", text: $title)
-                    TextField("Task Details", text: $details, axis: .vertical)
-                        .lineLimit(3...6)
+        Form {
+            Section("Details") {
+                TextField("Task Title", text: $title)
+                TextField("Task Details", text: $details, axis: .vertical)
+                    .lineLimit(3...6)
+            }
+
+            Section("Settings") {
+                Picker("Status", selection: $status) {
+                    ForEach(TaskStatus.allCases, id: \.self) { status in
+                        Text(status.title)
+                            .tag(status)
+                    }
                 }
 
-                Section("Settings") {
-                    Picker("Status", selection: $status) {
-                        ForEach(TaskStatus.allCases, id: \.self) { status in
-                            Text(status.title)
-                                .tag(status)
-                        }
+                Picker("Priority", selection: $priority) {
+                    ForEach(TaskPriority.allCases, id: \.self) { priority in
+                        Text(priority.title)
+                            .tag(priority)
                     }
-
-                    Picker("Priority", selection: $priority) {
-                        ForEach(TaskPriority.allCases, id: \.self) { priority in
-                            Text(priority.title)
-                                .tag(priority)
-                        }
-                    }
-
-                    DatePicker("Due Date", selection: $dueDate, displayedComponents: .date)
-                        .datePickerStyle(.compact)
                 }
 
-                if isEditing {
-                    Section {
-                        Button(action: {
-                            closeTask()
-                        }) {
-                            Text("Close Task")
-                        }
+                DatePicker("Due Date", selection: $dueDate, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+            }
 
-                        Button(role: .destructive, action: {
-                            deleteTask()
-                        }) {
-                            Label("Delete Task", systemImage: "trash")
-                        }
-                        .foregroundStyle(.red)
-                    } footer: {
-                        Text("Closing a task marks it as done; deleting it removes it from the project.")
-                            .font(.footnote)
+            if isEditing {
+                Section {
+                    Button(action: {
+                        closeTask()
+                    }) {
+                        Text("Close Task")
                     }
+
+                    Button(role: .destructive, action: {
+                        deleteTask()
+                    }) {
+                        Label("Delete Task", systemImage: "trash")
+                    }
+                    .foregroundStyle(.red)
+                } footer: {
+                    Text("Closing a task marks it as done; deleting it removes it from the project.")
+                        .font(.footnote)
                 }
             }
-            .navigationTitle(isEditing ? "Edit Task" : "New Task")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+        }
+        .navigationTitle(isEditing ? "Edit Task" : "New Task")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveTask()
-                    }
-                    .disabled(!canSave)
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    saveTask()
                 }
+                .disabled(!canSave)
             }
         }
     }
@@ -181,6 +181,11 @@ struct TaskFormView: View {
         }
 
         dismiss()
+        if let onDelete {
+            DispatchQueue.main.async {
+                onDelete()
+            }
+        }
     }
 
     private static var defaultDueDate: Date {
@@ -189,6 +194,8 @@ struct TaskFormView: View {
 }
 
 #Preview {
-    TaskFormView(project: SampleData.makeProjects()[0])
-        .modelContainer(SampleData.makePreviewContainer())
+    NavigationStack {
+        TaskFormView(project: SampleData.makeProjects()[0])
+    }
+    .modelContainer(SampleData.makePreviewContainer())
 }

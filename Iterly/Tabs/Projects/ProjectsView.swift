@@ -81,7 +81,9 @@ struct ProjectsView: View {
                 }
             }
             .sheet(isPresented: $showAddProjectSheet) {
-                ProjectFormView()
+                NavigationStack {
+                    ProjectFormView()
+                }
             }
             .overlay(alignment: .bottom) {
                 if !projects.isEmpty {

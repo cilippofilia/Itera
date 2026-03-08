@@ -153,10 +153,14 @@ struct ProjectDetailView: View {
             }
         }
         .sheet(item: $projectToEdit) { project in
-            ProjectFormView(project: project)
+            NavigationStack {
+                ProjectFormView(project: project)
+            }
         }
         .sheet(isPresented: $showAddTaskSheet) {
-            TaskFormView(project: project)
+            NavigationStack {
+                TaskFormView(project: project)
+            }
         }
         .alert("Can't Pin Project", isPresented: $showPinLimitAlert) {
             Button("OK", role: .cancel) {}

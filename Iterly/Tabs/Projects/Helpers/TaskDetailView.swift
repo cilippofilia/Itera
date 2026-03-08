@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct TaskDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var taskToEdit: ProjectTask?
     let task: ProjectTask
 
@@ -107,7 +108,9 @@ struct TaskDetailView: View {
             }
         }
         .sheet(item: $taskToEdit) { task in
-            TaskFormView(project: task.project, task: task)
+            TaskFormView(project: task.project, task: task) {
+                dismiss()
+            }
         }
     }
 }
