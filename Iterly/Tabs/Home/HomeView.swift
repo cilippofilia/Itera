@@ -13,6 +13,8 @@ struct HomeView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ProjectViewModel()
+    @State private var showEraseDataAlert: Bool = false
+    @State private var showAddDataAlert: Bool = false
 
     @Query(
         filter: #Predicate<Project> { $0.isPinned == true },
@@ -46,6 +48,22 @@ struct HomeView: View {
                     ereaseAllDataButton
                     addSampleDataButton
                 }
+            }
+            .alert("Erase All Data?", isPresented: $showEraseDataAlert) {
+                Button("Erase Data", role: .destructive) {
+                    viewModel.eraseAllData(modelContext: modelContext)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will permanently remove all projects, tasks, and releases.")
+            }
+            .alert("Add Sample Data?", isPresented: $showAddDataAlert) {
+                Button("Add Data") {
+                    viewModel.addSampleData(modelContext: modelContext)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Sample data will be added to your current projects.")
             }
         }
     }
@@ -102,7 +120,7 @@ extension HomeView {
             "Add Data",
             systemImage: "sparkles",
             action: {
-                viewModel.addSampleData(modelContext: modelContext)
+                showAddDataAlert = true
             }
         )
     }
@@ -112,7 +130,7 @@ extension HomeView {
             systemImage: "trash",
             role: .destructive,
             action: {
-                viewModel.eraseAllData(modelContext: modelContext)
+                showEraseDataAlert = true
             }
         )
     }
