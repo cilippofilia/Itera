@@ -17,7 +17,7 @@ struct TaskDetailView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 Text(task.title)
-                    .font(.title)
+                    .font(.title2)
                     .bold()
                     .foregroundStyle(.primary)
 
@@ -74,27 +74,42 @@ struct TaskDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
-                    .padding([.horizontal, .bottom])
+                    .padding(.horizontal)
+
+                    DatePicker(
+                        "Due Date",
+                        selection: Binding(
+                            get: { task.dueDate },
+                            set: {
+                                task.dueDate = $0
+                                task.project.touch()
+                            }
+                        ),
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.compact)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+
+                    if let overdueDays {
+                        Text(
+                            String.localizedStringWithFormat(
+                                NSLocalizedString("overdue_days", comment: "Overdue days label"),
+                                overdueDays
+                            )
+                        )
+                        .foregroundStyle(.red)
+                        .bold()
+                        .padding([.horizontal, .bottom])
+                    }
                 }
                 .background(.ultraThinMaterial)
                 .clipShape(.rect(cornerRadius: 8, style: .continuous))
 
-                DatePicker(
-                    "Due Date",
-                    selection: Binding(
-                        get: { task.dueDate },
-                        set: {
-                            task.dueDate = $0
-                            task.project.touch()
-                        }
-                    ),
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.compact)
-
                 NavigationLink(value: task.project) {
                     Label("Go to Project", systemImage: "folder")
                 }
+                .buttonStyle(.borderedProminent)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding([.horizontal, .bottom])
@@ -112,6 +127,15 @@ struct TaskDetailView: View {
                 dismiss()
             }
         }
+    }
+
+    private var overdueDays: Int? {
+        let calendar = Calendar.autoupdatingCurrent
+        let dueDay = calendar.startOfDay(for: task.dueDate)
+        let today = calendar.startOfDay(for: .now)
+        guard dueDay < today else { return nil }
+        let days = calendar.dateComponents([.day], from: dueDay, to: today).day ?? 0
+        return max(days, 1)
     }
 }
 
