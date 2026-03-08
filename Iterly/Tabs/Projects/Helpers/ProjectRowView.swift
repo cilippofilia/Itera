@@ -11,6 +11,7 @@ struct ProjectRowView: View {
     let title: String
     let statusTitle: String
     let statusColor: Color
+    let currentRelease: ProjectRelease?
     
     let tasks: [ProjectTask]
 
@@ -20,11 +21,15 @@ struct ProjectRowView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
+            HStack(spacing: 4) {
                 Text(title)
                     .bold()
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                if let releaseText = releaseText(for: currentRelease) {
+                    Text(releaseText)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
                 Text(statusTitle)
                     .badgeStyle(backgroundColor: statusColor)
@@ -48,9 +53,31 @@ struct ProjectRowView: View {
         .padding(.horizontal, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+
+    private func releaseText(for release: ProjectRelease?) -> String? {
+        guard let release else { return nil }
+        if release.version.isEmpty, release.build.isEmpty { return nil }
+
+        if release.version.isEmpty {
+            return "Build \(release.build)"
+        }
+        if release.build.isEmpty {
+            return "v\(release.version)"
+        }
+        return "v\(release.version) (\(release.build))"
+    }
 }
 
 #Preview {
     let data = SampleData.makeProjects()[0]
-    ProjectRowView(title: data.title, statusTitle: data.status.title, statusColor: data.status.backgroundColor, tasks: data.tasks ?? [], blockedAmount: 0.1, inProgressAmount: 0.3, doneAmount: 0.4)
+    ProjectRowView(
+        title: data.title,
+        statusTitle: data.status.title,
+        statusColor: data.status.backgroundColor,
+        currentRelease: data.currentRelease,
+        tasks: data.tasks ?? [],
+        blockedAmount: 0.1,
+        inProgressAmount: 0.3,
+        doneAmount: 0.4
+    )
 }

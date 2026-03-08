@@ -23,6 +23,8 @@ struct TaskFormView: View {
     @State private var dueDate: Date = TaskFormView.defaultDueDate
 
     @State private var isEditing: Bool = false
+    @State private var showCloseAlert: Bool = false
+    @State private var showDeleteAlert: Bool = false
 
     init(project: Project, task: ProjectTask? = nil, onDelete: (() -> Void)? = nil) {
         self.project = project
@@ -70,13 +72,13 @@ struct TaskFormView: View {
             if isEditing {
                 Section {
                     Button(action: {
-                        closeTask()
+                        showCloseAlert = true
                     }) {
                         Text("Close Task")
                     }
 
                     Button(role: .destructive, action: {
-                        deleteTask()
+                        showDeleteAlert = true
                     }) {
                         Label("Delete Task", systemImage: "trash")
                     }
@@ -101,6 +103,22 @@ struct TaskFormView: View {
                 }
                 .disabled(!canSave)
             }
+        }
+        .alert("Close Task?", isPresented: $showCloseAlert) {
+            Button("Close Task", role: .destructive) {
+                closeTask()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will mark the task as closed.")
+        }
+        .alert("Delete Task?", isPresented: $showDeleteAlert) {
+            Button("Delete Task", role: .destructive) {
+                deleteTask()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently remove the task from the project.")
         }
     }
 
@@ -181,11 +199,7 @@ struct TaskFormView: View {
         }
 
         dismiss()
-        if let onDelete {
-            DispatchQueue.main.async {
-                onDelete()
-            }
-        }
+        onDelete?()
     }
 
     private static var defaultDueDate: Date {

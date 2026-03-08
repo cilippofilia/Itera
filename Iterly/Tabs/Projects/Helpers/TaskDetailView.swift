@@ -32,8 +32,10 @@ struct TaskDetailView: View {
             }
         }
         .sheet(item: $taskToEdit) { task in
-            TaskFormView(project: task.project, task: task) {
-                dismiss()
+            NavigationStack {
+                TaskFormView(project: task.project, task: task) {
+                    dismiss()
+                }
             }
         }
     }
