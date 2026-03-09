@@ -38,17 +38,17 @@ enum ProjectStatus: String, CaseIterable, Codable {
     var backgroundColor: Color {
         switch self {
         case .plan:
-            return .secondary.opacity(0.5)
+            return .blue
         case .dev:
-            return .yellow
-        case .beta:
             return .orange
+        case .beta:
+            return .purple
         case .live:
             return .green
         case .blocked:
             return .red
         case .closed:
-            return .purple
+            return .gray
         }
     }
 }
@@ -82,13 +82,13 @@ enum TaskStatus: String, CaseIterable, Codable {
         case .blocked:
             return .red
         case .notStarted:
-            return .secondary.opacity(0.5)
+            return .gray
         case .inProgress:
-            return .yellow
+            return .blue
         case .done:
             return .green
         case .closed:
-            return .purple
+            return .gray
         }
     }
 }
