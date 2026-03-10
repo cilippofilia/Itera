@@ -11,11 +11,9 @@ struct ProjectCell: View {
     let title: String
     let tasks: [ProjectTask]
 
-    let blockedAmount: CGFloat
-    let inProgressAmount: CGFloat
-    let doneAmount: CGFloat
-
-    let orderedStatuses: [TaskStatus] = [.blocked, .inProgress, .done, .notStarted]
+    let blockedAmount: Double
+    let inProgressAmount: Double
+    let doneAmount: Double
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -24,20 +22,16 @@ struct ProjectCell: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
 
-            Text(String.localizedStringWithFormat(NSLocalizedString("tasks_count", comment: "Tasks count"), tasks.count))
+            Text(LocalizedText.tasksCount(tasks.count))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ProgressView(value: inProgressAmount + blockedAmount + doneAmount)
-                .tint(tasks.first(where: { $0.status == .done })?.status.backgroundColor)
-                .overlay {
-                    ProgressView(value: inProgressAmount + blockedAmount)
-                        .tint(tasks.first(where: { $0.status == .inProgress })?.status.backgroundColor)
-                }
-                .overlay {
-                    ProgressView(value: blockedAmount)
-                        .tint(tasks.first(where: { $0.status == .blocked })?.status.backgroundColor)
-                }
+            TaskProgressView(
+                tasks: tasks,
+                blockedAmount: blockedAmount,
+                inProgressAmount: inProgressAmount,
+                doneAmount: doneAmount
+            )
         }
         .padding()
         .frame(maxWidth: .infinity, minHeight: 70, alignment: .leading)

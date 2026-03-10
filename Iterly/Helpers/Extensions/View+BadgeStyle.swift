@@ -37,7 +37,7 @@ private struct BadgeStyleModifier: ViewModifier {
     }
 }
 
-private struct ButtonStyleModifier: ViewModifier {
+private struct PrimaryCapsuleButtonStyleModifier: ViewModifier {
     let foregroundColor: Color
     let backgroundColor: Color
 
@@ -55,12 +55,12 @@ extension View {
         modifier(BadgeStyleModifier(backgroundColor: backgroundColor))
     }
 
-    func buttonStyle(
+    func primaryCapsuleButtonStyle(
         foregroundColor: Color = .white,
         backgroundColor: Color = .blue
     ) -> some View {
         modifier(
-            ButtonStyleModifier(
+            PrimaryCapsuleButtonStyleModifier(
                 foregroundColor: foregroundColor,
                 backgroundColor: backgroundColor
             )

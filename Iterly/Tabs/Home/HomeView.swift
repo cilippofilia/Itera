@@ -13,6 +13,7 @@ struct HomeView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ProjectViewModel()
+    @State private var homeViewModel = HomeViewModel()
     @State private var showEraseDataAlert: Bool = false
     @State private var showAddDataAlert: Bool = false
 
@@ -35,18 +36,19 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if pinnedProjects.isEmpty, projects.isEmpty, tasks.isEmpty {
-                    UnavailableProjectsView()
-                } else {
-                    availableView
-                }
-            }
+            HomeContentView(
+                pinnedProjects: pinnedProjects,
+                projects: projects,
+                tasks: tasks,
+                viewModel: homeViewModel
+            )
             .navigationTitle("Home")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    ereaseAllDataButton
-                    addSampleDataButton
+                    HomeToolbarButtonsView(
+                        showEraseDataAlert: $showEraseDataAlert,
+                        showAddDataAlert: $showAddDataAlert
+                    )
                 }
             }
             .alert("Erase All Data?", isPresented: $showEraseDataAlert) {
@@ -66,74 +68,6 @@ struct HomeView: View {
                 Text("Sample data will be added to your current projects.")
             }
         }
-    }
-}
-
-extension HomeView {
-    private var totalProjectsCount: Int {
-        pinnedProjects.count + projects.count
-    }
-    private var showMore: Bool {
-        return totalProjectsCount > 5
-    }
-
-    private var availableView: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                let upcomingTasks = tasks
-                    .filter { $0.project.status != .closed }
-                    .filter { $0.status != .done }
-                    .filter { $0.parentTask == nil }
-                    .sorted { lhs, rhs in
-                        if lhs.dueDate != rhs.dueDate {
-                            return lhs.dueDate < rhs.dueDate
-                        }
-                        return lhs.priority.sortRank < rhs.priority.sortRank
-                    }
-
-                PinnedProjectsSection(projects: pinnedProjects)
-                    .padding(.bottom)
-
-                ProjectsSection(
-                    projects: Array(projects.prefix(5)),
-                    allProjectsCount: totalProjectsCount,
-                    showMore: showMore
-                )
-                .padding(.bottom)
-
-                TasksSection(tasks: Array(upcomingTasks.prefix(10)))
-                    .padding(.bottom)
-            }
-        }
-        .navigationDestination(for: Project.self) { project in
-            ProjectDetailView(project: project)
-        }
-        .navigationDestination(for: UUID.self) { taskId in
-            if let task = tasks.first(where: { $0.id == taskId }) {
-                TaskDetailView(task: task)
-            }
-        }
-        .contentMargins(.bottom, 70, for: .scrollContent)
-    }
-
-    var addSampleDataButton: some View {
-        Button(
-            "Add Data",
-            systemImage: "sparkles",
-            action: {
-                showAddDataAlert = true
-            }
-        )
-    }
-    var ereaseAllDataButton: some View {
-        Button(
-            "Erase Data",
-            systemImage: "trash",
-            role: .destructive,
-            action: {
-                showEraseDataAlert = true
-            }
-        )
     }
 }
 

@@ -14,10 +14,7 @@ struct TaskRowView: View {
     var body: some View {
         let isDone = task.status == .done
         let subtaskCount = task.subtasks?.count ?? 0
-        let subtaskLabel = String.localizedStringWithFormat(
-            NSLocalizedString("subtasks_count", comment: "Subtasks count"),
-            subtaskCount
-        )
+        let subtaskLabel = LocalizedText.subtasksCount(subtaskCount)
 
         HStack(alignment: .firstTextBaseline) {
             Button(

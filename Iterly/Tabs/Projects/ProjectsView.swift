@@ -14,6 +14,7 @@ struct ProjectsView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var viewModel = ProjectViewModel()
+    @State private var projectsViewModel = ProjectsViewModel()
     @State private var projectPendingDeletion: Project?
     @State private var showDeletionAlert: Bool = false
     @State private var showPinLimitAlert: Bool = false
@@ -25,7 +26,7 @@ struct ProjectsView: View {
     ])
     private var projects: [Project]
 
-    let orderedStatuses: [TaskStatus] = [.blocked, .inProgress, .done, .notStarted]
+    private let orderedStatuses: [TaskStatus] = [.blocked, .inProgress, .done, .notStarted]
 
     var body: some View {
         NavigationStack {
@@ -33,19 +34,42 @@ struct ProjectsView: View {
                 if projects.isEmpty {
                     UnavailableProjectsView()
                 } else {
+                    let split = projectsViewModel.splitProjects(projects)
                     List {
-                        if !activeProjects.isEmpty {
+                        if !split.active.isEmpty {
                             Section {
-                                ForEach(activeProjects) { project in
-                                    projectRow(project)
+                                ForEach(split.active) { project in
+                                    ProjectRowLinkView(
+                                        project: project,
+                                        onTogglePin: {
+                                            if viewModel.togglePin(project: project, modelContext: modelContext) == false {
+                                                showPinLimitAlert = true
+                                            }
+                                        },
+                                        onDelete: {
+                                            projectPendingDeletion = project
+                                            showDeletionAlert = true
+                                        }
+                                    )
                                 }
                             }
                         }
 
-                        if !closedProjects.isEmpty {
+                        if !split.closed.isEmpty {
                             Section("Closed Projects") {
-                                ForEach(closedProjects) { project in
-                                    projectRow(project)
+                                ForEach(split.closed) { project in
+                                    ProjectRowLinkView(
+                                        project: project,
+                                        onTogglePin: {
+                                            if viewModel.togglePin(project: project, modelContext: modelContext) == false {
+                                                showPinLimitAlert = true
+                                            }
+                                        },
+                                        onDelete: {
+                                            projectPendingDeletion = project
+                                            showDeletionAlert = true
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -87,18 +111,7 @@ struct ProjectsView: View {
             }
             .overlay(alignment: .bottom) {
                 if !projects.isEmpty {
-                    HStack(spacing: 8) {
-                        ForEach(orderedStatuses, id: \.self) { status in
-                            Circle().fill(status.backgroundColor)
-                                .frame(width: 6, height: 6)
-                            Text(status.title)
-                                .font(.caption2)
-                        }
-                    }
-                    .padding(8)
-                    .background(.ultraThinMaterial)
-                    .clipShape(.rect(cornerRadius: 12, style: .continuous))
-                    .padding(.bottom, 8)
+                    ProjectsLegendView(orderedStatuses: orderedStatuses)
                 }
             }
         }
@@ -112,49 +125,6 @@ struct ProjectsView: View {
                 showAddProjectSheet = true
             }
         )
-    }
-
-    private var activeProjects: [Project] {
-        projects.filter { $0.status != .closed }
-    }
-
-    private var closedProjects: [Project] {
-        projects.filter { $0.status == .closed }
-    }
-
-    @ViewBuilder
-    private func projectRow(_ project: Project) -> some View {
-        NavigationLink(value: project) {
-            ProjectRowView(
-                title: project.title,
-                statusTitle: project.status.title,
-                statusColor: project.status.backgroundColor,
-                currentRelease: project.currentRelease,
-                tasks: project.topLevelTasks,
-                blockedAmount: project.blockedAmount,
-                inProgressAmount: project.inProgressAmount,
-                doneAmount: project.doneAmount
-            )
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                Button(action: {
-                    if viewModel.togglePin(project: project, modelContext: modelContext) == false {
-                        showPinLimitAlert = true
-                    }
-                }) {
-                    Label("Pin", systemImage: "pin")
-                }
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button(action: {
-                    projectPendingDeletion = project
-                    showDeletionAlert = true
-                }) {
-                    Label("Delete", systemImage: "trash")
-                }
-                .tint(.red)
-            }
-        }
-        .buttonStyle(.plain)
     }
 
     private func deleteProject(_ project: Project) {

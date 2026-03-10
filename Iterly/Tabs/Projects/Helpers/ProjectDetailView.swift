@@ -17,35 +17,28 @@ struct ProjectDetailView: View {
     @State private var showBrainstormSheet: Bool = false
 
     @Bindable var project: Project
-    @State var projectNote: String = ""
 
     var body: some View {
-        let tasks = project.topLevelTasks
-        let activeTasks = tasks.filter { $0.status != .done && $0.status != .closed }
-        let completedTasks = tasks.filter { $0.status == .done }
-        let closedTasks = tasks.filter { $0.status == .closed }
+        let sections = TaskSectionsBuilder.sections(for: project.topLevelTasks)
 
         ScrollView {
             VStack(alignment: .leading) {
-                projectDescriptionView
-
-                infoBoxSection
-
-                brainstormButton
-
-                if !activeTasks.isEmpty {
-                    tasksSection(label: "Tasks", for: activeTasks)
-                    addTaskButton
-                        .padding(4)
-                } else {
-                    noTasksAvailableView
+                if let details = project.details, !details.isEmpty {
+                    Text(details)
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom)
                 }
-                if !completedTasks.isEmpty {
-                    tasksSection(label: "Completed Tasks", for: completedTasks)
-                }
-                if !closedTasks.isEmpty {
-                    tasksSection(label: "Closed Tasks", for: closedTasks)
-                }
+
+                ProjectInfoBoxView(project: project)
+
+                ProjectActionsView(showBrainstormSheet: $showBrainstormSheet)
+
+                ProjectTaskSectionsView(
+                    sections: sections,
+                    onAddTask: {
+                        showAddTaskSheet = true
+                    }
+                )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding([.horizontal, .bottom])
@@ -60,7 +53,9 @@ struct ProjectDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    project.isPinned.toggle()
+                    if viewModel.togglePin(project: project, modelContext: modelContext) == false {
+                        showPinLimitAlert = true
+                    }
                 }) {
                     Image(systemName: "pin")
                         .rotationEffect(Angle(degrees: 45))
@@ -98,170 +93,11 @@ struct ProjectDetailView: View {
             Text("Only 4 projects can be pinned at the same time.")
         }
     }
-
-    private func releaseText(for project: Project) -> String? {
-        guard let release = project.currentRelease else { return nil }
-        if release.version.isEmpty, release.build.isEmpty { return nil }
-        if release.version.isEmpty {
-            return "Build \(release.build)"
-        }
-        if release.build.isEmpty {
-            return "v\(release.version)"
-        }
-        return "v\(release.version) (\(release.build))"
-    }
-}
-
-private extension ProjectDetailView {
-    @ViewBuilder
-    var projectDescriptionView: some View {
-        if let details = project.details, !details.isEmpty {
-            Text(details)
-                .foregroundStyle(.secondary)
-                .padding(.bottom)
-        }
-    }
-
-    @ViewBuilder
-    var noteSection: some View {
-        if let note = project.note, !note.isEmpty {
-            Text(note)
-                .foregroundStyle(.secondary)
-                .padding(.bottom)
-        }
-    }
-
-    var infoBoxSection: some View {
-        VStack(alignment: .leading) {
-            Text("Info")
-                .bold()
-                .padding([.horizontal, .top])
-
-            statusLabel
-            priorityLabel
-            currentReleaseLabel
-        }
-        .background(.ultraThinMaterial)
-        .clipShape(.rect(cornerRadius: 8, style: .continuous))
-    }
-
-    var statusLabel: some View {
-        LabeledContent("Status") {
-            Menu {
-                Picker("Status", selection: Binding(
-                    get: { project.status },
-                    set: {
-                        project.status = $0
-                        project.touch()
-                    }
-                )) {
-                    ForEach(ProjectStatus.allCases, id: \.self) { status in
-                        Text(status.title)
-                            .tag(status)
-                    }
-                }
-            } label: {
-                Text(project.status.title)
-                    .badgeStyle(backgroundColor: project.status.backgroundColor)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal)
-    }
-
-    var priorityLabel: some View {
-        LabeledContent("Priority") {
-            Menu {
-                Picker("Priority", selection: Binding(
-                    get: { project.priority },
-                    set: {
-                        project.priority = $0
-                        project.touch()
-                    }
-                )) {
-                    ForEach(ProjectPriority.allCases, id: \.self) { priority in
-                        Text(priority.title)
-                            .tag(priority)
-                    }
-                }
-            } label: {
-                Text(project.priority.title)
-                    .badgeStyle(backgroundColor: project.priority.backgroundColor)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal)
-        .padding(.bottom, releaseText(for: project) != nil ? 0 : 16)
-    }
-
-    @ViewBuilder
-    var currentReleaseLabel: some View {
-        if let releaseText = releaseText(for: project) {
-            HStack {
-                Text("Current Release")
-                Spacer()
-                Text(releaseText)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-            .padding([.horizontal, .bottom])
-        }
-    }
-
-    @ViewBuilder
-    func tasksSection(
-        label: String,
-        for tasks: [ProjectTask]
-    ) -> some View {
-        Text(label)
-            .font(.headline)
-            .foregroundStyle(.secondary)
-            .padding(.top)
-        ForEach(tasks) { task in
-            TaskRowView(task: task)
-        }
-    }
-
-    var brainstormButton: some View {
-        Button(action: {
-            showBrainstormSheet = true
-        }) {
-            Label("Brainstorm", systemImage: "brain")
-                .buttonStyle()
-        }
-    }
-
-    var addTaskButton: some View {
-        Button(action: {
-            showAddTaskSheet = true
-        }) {
-            Label("Add task", systemImage: "plus")
-                .buttonStyle()
-        }
-    }
-
-    var noTasksAvailableView: some View {
-        ContentUnavailableView(
-            label: { Text("There are no active tasks") },
-            description: { Text("This project has no tasks yet. Press the button below to get started.") },
-            actions: {
-                addTaskButton
-            }
-        )
-        .padding(8)
-    }
 }
 
 #Preview("Light") {
     NavigationStack {
         ProjectDetailView(project: SampleData.makeProjects()[0])
-    }
-    .modelContainer(SampleData.makePreviewContainer())
-}
-#Preview("Dark") {
-    NavigationStack {
-        ProjectDetailView(project: SampleData.makeProjects()[0])
-            .preferredColorScheme(.dark)
     }
     .modelContainer(SampleData.makePreviewContainer())
 }

@@ -21,6 +21,7 @@ struct BrainstormFormView: View {
                     axis: .vertical
                 )
                 .lineLimit(12...)
+                .focused($isFieldFocused)
             }
         }
         .navigationTitle("Brainstorm")

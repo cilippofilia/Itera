@@ -15,9 +15,9 @@ struct ProjectRowView: View {
     
     let tasks: [ProjectTask]
 
-    let blockedAmount: CGFloat
-    let inProgressAmount: CGFloat
-    let doneAmount: CGFloat
+    let blockedAmount: Double
+    let inProgressAmount: Double
+    let doneAmount: Double
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -25,7 +25,7 @@ struct ProjectRowView: View {
                 Text(title)
                     .bold()
                     .lineLimit(1)
-                if let releaseText = releaseText(for: currentRelease) {
+                if let releaseText = currentRelease?.displayText {
                     Text(releaseText)
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -35,36 +35,19 @@ struct ProjectRowView: View {
                     .badgeStyle(backgroundColor: statusColor)
             }
 
-            Text(String.localizedStringWithFormat(NSLocalizedString("tasks_count", comment: "Tasks count"), tasks.count))
+            Text(LocalizedText.tasksCount(tasks.count))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ProgressView(value: inProgressAmount + blockedAmount + doneAmount)
-                .tint(tasks.first(where: { $0.status == .done })?.status.backgroundColor)
-                .overlay {
-                    ProgressView(value: inProgressAmount + blockedAmount)
-                        .tint(tasks.first(where: { $0.status == .inProgress })?.status.backgroundColor)
-                }
-                .overlay {
-                    ProgressView(value: blockedAmount)
-                        .tint(tasks.first(where: { $0.status == .blocked })?.status.backgroundColor)
-                }
+            TaskProgressView(
+                tasks: tasks,
+                blockedAmount: blockedAmount,
+                inProgressAmount: inProgressAmount,
+                doneAmount: doneAmount
+            )
         }
         .padding(.horizontal, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func releaseText(for release: ProjectRelease?) -> String? {
-        guard let release else { return nil }
-        if release.version.isEmpty, release.build.isEmpty { return nil }
-
-        if release.version.isEmpty {
-            return "Build \(release.build)"
-        }
-        if release.build.isEmpty {
-            return "v\(release.version)"
-        }
-        return "v\(release.version) (\(release.build))"
     }
 }
 
