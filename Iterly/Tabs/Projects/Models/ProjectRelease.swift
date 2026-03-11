@@ -13,6 +13,7 @@ final class ProjectRelease: Identifiable {
     var id: UUID = UUID()
     var version: String = ""
     var build: String = ""
+    var appURL: String = ""
 
     @Relationship(inverse: \Project.currentRelease)
     var project: Project
@@ -21,11 +22,13 @@ final class ProjectRelease: Identifiable {
         id: UUID = UUID(),
         version: String = "",
         build: String = "",
+        appURL: String = "",
         project: Project
     ) {
         self.id = id
         self.version = version
         self.build = build
+        self.appURL = appURL
         self.project = project
     }
 }

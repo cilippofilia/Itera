@@ -14,7 +14,7 @@ struct ProjectTaskSectionsView: View {
     var body: some View {
         if !sections.active.isEmpty {
             TaskListSectionView(title: "Tasks", tasks: sections.active)
-            PrimaryCapsuleActionButton(
+            TertiaryCapsuleActionButton(
                 title: "Add task",
                 systemImage: "plus",
                 action: onAddTask

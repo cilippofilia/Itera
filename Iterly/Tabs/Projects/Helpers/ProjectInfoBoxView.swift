@@ -76,3 +76,7 @@ struct ProjectInfoBoxView: View {
         .clipShape(.rect(cornerRadius: 8, style: .continuous))
     }
 }
+
+#Preview {
+    ProjectInfoBoxView(project: SampleData.makeProjects()[0])
+}

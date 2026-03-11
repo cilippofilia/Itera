@@ -18,6 +18,7 @@ struct ProjectFormView: View {
     @State private var note = ""
     @State private var version = ""
     @State private var build = ""
+    @State private var appURL = ""
     @State private var priority: ProjectPriority = .default
     @State private var status: ProjectStatus = .default
     @State private var isPinned = false
@@ -33,6 +34,7 @@ struct ProjectFormView: View {
         _note = State(initialValue: project?.note ?? "")
         _version = State(initialValue: project?.currentRelease?.version ?? "")
         _build = State(initialValue: project?.currentRelease?.build ?? "")
+        _appURL = State(initialValue: project?.currentRelease?.appURL ?? "")
         _priority = State(initialValue: project?.priority ?? .default)
         _status = State(initialValue: project?.status ?? .default)
         _isPinned = State(initialValue: project?.isPinned ?? false)
@@ -69,6 +71,10 @@ struct ProjectFormView: View {
             Section("Release info") {
                 TextField("Version", text: $version)
                 TextField("Build number", text: $build)
+                TextField("App URL", text: $appURL)
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
             }
 
             Section("Brainstorm") {
@@ -129,6 +135,7 @@ struct ProjectFormView: View {
             isPinned: isPinned,
             version: version,
             build: build,
+            appURL: appURL,
             modelContext: modelContext
         )
         dismiss()
@@ -138,6 +145,7 @@ struct ProjectFormView: View {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAppURL = appURL.trimmingCharacters(in: .whitespacesAndNewlines)
 
         project.title = trimmedTitle
         project.details = trimmedDetails.isEmpty ? nil : trimmedDetails
@@ -150,8 +158,9 @@ struct ProjectFormView: View {
         if let release = project.currentRelease {
             release.version = version
             release.build = build
+            release.appURL = trimmedAppURL
         } else {
-            let release = ProjectRelease(version: version, build: build, project: project)
+            let release = ProjectRelease(version: version, build: build, appURL: trimmedAppURL, project: project)
             project.currentRelease = release
             modelContext.insert(release)
         }

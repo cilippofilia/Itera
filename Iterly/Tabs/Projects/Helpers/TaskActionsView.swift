@@ -23,7 +23,7 @@ struct TaskActionsView: View {
 
             NavigationLink(value: project) {
                 Label("Go to Project", systemImage: "folder")
-                    .primaryCapsuleButtonStyle()
+                    .secondaryCapsuleButtonStyle()
             }
             .foregroundStyle(.white)
         }

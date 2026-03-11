@@ -17,7 +17,7 @@ struct TaskSubtaskSectionsView: View {
 
             if !sections.active.isEmpty {
                 TaskListSectionView(title: "Subtasks", tasks: sections.active)
-                PrimaryCapsuleActionButton(
+                TertiaryCapsuleActionButton(
                     title: "Add subtask",
                     systemImage: "plus",
                     action: onAddSubtask

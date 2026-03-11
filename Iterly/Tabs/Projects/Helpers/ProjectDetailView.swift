@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ProjectDetailView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
     @State private var viewModel = ProjectViewModel()
     @State private var showPinLimitAlert: Bool = false
     @State private var projectToEdit: Project?
@@ -31,7 +32,23 @@ struct ProjectDetailView: View {
 
                 ProjectInfoBoxView(project: project)
 
-                ProjectActionsView(showBrainstormSheet: $showBrainstormSheet)
+                HStack {
+                    PrimaryCapsuleActionButton(
+                        title: "Brainstorm",
+                        systemImage: "brain",
+                        action: { showBrainstormSheet = true }
+                    )
+
+                    if let appURL = project.currentRelease?.appURL.trimmingCharacters(in: .whitespacesAndNewlines),
+                       appURL.isEmpty == false,
+                       let destination = URL(string: appURL) {
+                        SecondaryCapsuleActionButton(
+                            title: "Go to AppStore",
+                            systemImage: "arrow.up.right.square",
+                            action: { openURL(destination) }
+                        )
+                    }
+                }
 
                 ProjectTaskSectionsView(
                     sections: sections,

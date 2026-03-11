@@ -15,11 +15,13 @@ final class ProjectViewModel {
         isPinned: Bool,
         version: String,
         build: String,
+        appURL: String,
         modelContext: ModelContext
     ) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAppURL = appURL.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let project = Project(
             title: trimmedTitle,
@@ -32,7 +34,7 @@ final class ProjectViewModel {
             isPinned: false
         )
 
-        let release = ProjectRelease(version: version, build: build, project: project)
+        let release = ProjectRelease(version: version, build: build, appURL: trimmedAppURL, project: project)
         project.currentRelease = release
 
         modelContext.insert(project)
