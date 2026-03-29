@@ -30,6 +30,10 @@ final class Project: Identifiable, Hashable {
         set { typeRawValue = newValue.rawValue }
     }
 
+    var needsTypeBackfill: Bool {
+        typeRawValue == nil
+    }
+
     var topLevelTasks: [ProjectTask] {
         (tasks ?? []).filter { $0.parentTask == nil }
     }
@@ -87,6 +91,11 @@ final class Project: Identifiable, Hashable {
 
     func touch() {
         lastUpdated = .now
+    }
+
+    func backfillTypeIfNeeded() {
+        guard needsTypeBackfill else { return }
+        typeRawValue = ProjectType.default.rawValue
     }
 
     // MARK: HASHABLE CONFORMANCE METHODS
