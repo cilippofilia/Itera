@@ -45,11 +45,6 @@ struct TaskDetailView: View {
             .padding([.horizontal, .bottom])
         }
         .navigationTitle(task.project.title)
-        .navigationDestination(for: UUID.self) { taskId in
-            if let task = task.project.tasks?.first(where: { $0.id == taskId }) {
-                TaskDetailView(task: task)
-            }
-        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit", systemImage: "pencil.line") {

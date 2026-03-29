@@ -62,11 +62,6 @@ struct ProjectDetailView: View {
         }
         .navigationTitle(project.title)
         .contentMargins(.bottom, 70, for: .scrollContent)
-        .navigationDestination(for: UUID.self) { taskId in
-            if let task = project.tasks?.first(where: { $0.id == taskId }) {
-                TaskDetailView(task: task)
-            }
-        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {

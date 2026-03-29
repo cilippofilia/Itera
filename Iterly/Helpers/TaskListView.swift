@@ -23,11 +23,6 @@ struct TaskListView: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(for: UUID.self) { taskId in
-            if let task = tasks.first(where: { $0.id == taskId }) {
-                TaskDetailView(task: task)
-            }
-        }
     }
 }
 

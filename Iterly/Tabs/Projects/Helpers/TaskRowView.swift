@@ -28,7 +28,9 @@ struct TaskRowView: View {
             .symbolEffect(.bounce, value: isDone)
             .buttonStyle(.plain)
 
-            NavigationLink(value: task.id) {
+            NavigationLink {
+                TaskDetailView(task: task)
+            } label: {
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .frame(width: 3)
                     .foregroundStyle(isDone ? .secondary.opacity(0.5) : task.priority.backgroundColor)

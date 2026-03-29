@@ -37,11 +37,6 @@ struct HomeAvailableView: View {
         .navigationDestination(for: Project.self) { project in
             ProjectDetailView(project: project)
         }
-        .navigationDestination(for: UUID.self) { taskId in
-            if let task = upcomingTasks.first(where: { $0.id == taskId }) {
-                TaskDetailView(task: task)
-            }
-        }
         .contentMargins(.bottom, 70, for: .scrollContent)
     }
 }
