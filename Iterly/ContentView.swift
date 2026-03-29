@@ -21,6 +21,10 @@ struct ContentView: View {
             Tab("Projects", systemImage: "folder", value: ProjectsView.projectsTag) {
                 ProjectsView()
             }
+
+            Tab("Activity", systemImage: "chart.bar.xaxis", value: ActivityView.activityTag) {
+                ActivityView()
+            }
         }
         .task {
             backfillProjectTypesIfNeeded()
