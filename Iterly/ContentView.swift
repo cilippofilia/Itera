@@ -25,6 +25,10 @@ struct ContentView: View {
             Tab("Activity", systemImage: "chart.bar.xaxis", value: ActivityView.activityTag) {
                 ActivityView()
             }
+
+            Tab("Settings", systemImage: "gear", value: SettingsView.settingsTag) {
+                SettingsView()
+            }
         }
         .task {
             backfillProjectTypesIfNeeded()
