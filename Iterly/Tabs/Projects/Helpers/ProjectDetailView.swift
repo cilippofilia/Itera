@@ -16,6 +16,8 @@ struct ProjectDetailView: View {
     @State private var projectToEdit: Project?
     @State private var showAddTaskSheet: Bool = false
     @State private var showBrainstormSheet: Bool = false
+    @State private var isRefreshingAppStore = false
+    @State private var appStoreSyncErrorMessage: String?
 
     @Bindable var project: Project
 
@@ -30,7 +32,10 @@ struct ProjectDetailView: View {
                         .padding(.bottom)
                 }
 
-                ProjectInfoBoxView(project: project)
+                ProjectInfoBoxView(
+                    project: project,
+                    isSyncingAppStore: isRefreshingAppStore
+                )
 
                 HStack {
                     PrimaryCapsuleActionButton(
@@ -39,9 +44,9 @@ struct ProjectDetailView: View {
                         action: { showBrainstormSheet = true }
                     )
 
-                    if let appURL = project.currentRelease?.appURL.trimmingCharacters(in: .whitespacesAndNewlines),
-                       appURL.isEmpty == false,
-                       let destination = URL(string: appURL) {
+                    if let appStoreURL = project.currentRelease?.appStoreURL.trimmingCharacters(in: .whitespacesAndNewlines),
+                       appStoreURL.isEmpty == false,
+                       let destination = URL(string: appStoreURL) {
                         SecondaryCapsuleActionButton(
                             title: "Go to AppStore",
                             systemImage: "arrow.up.right.square",
@@ -103,6 +108,42 @@ struct ProjectDetailView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Only 4 projects can be pinned at the same time.")
+        }
+        .alert("App Store Sync Failed", isPresented: Binding(
+            get: { appStoreSyncErrorMessage != nil },
+            set: { newValue in
+                if newValue == false {
+                    appStoreSyncErrorMessage = nil
+                }
+            }
+        )) {
+            Button("OK", role: .cancel) {
+                appStoreSyncErrorMessage = nil
+            }
+        } message: {
+            Text(appStoreSyncErrorMessage ?? "Something went wrong.")
+        }
+    }
+
+    private func refreshAppStoreRelease() async {
+        isRefreshingAppStore = true
+        defer { isRefreshingAppStore = false }
+
+        do {
+            try await viewModel.refreshAppStoreRelease(for: project, modelContext: modelContext)
+            appStoreSyncErrorMessage = nil
+        } catch {
+            viewModel.saveAppStoreSyncError(error, for: project, modelContext: modelContext)
+            appStoreSyncErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func disconnectAppStoreRelease() {
+        do {
+            try viewModel.disconnectAppStoreRelease(for: project, modelContext: modelContext)
+            appStoreSyncErrorMessage = nil
+        } catch {
+            appStoreSyncErrorMessage = error.localizedDescription
         }
     }
 }

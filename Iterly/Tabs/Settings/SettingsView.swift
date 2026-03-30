@@ -30,11 +30,7 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
-                        ContentUnavailableView(
-                            "No integrations yet",
-                            systemImage: "link",
-                            description: Text("Connected services and sync options can be added here later.")
-                        )
+                        IntegrationsSettingsView()
                     } label: {
                         FormRowView(
                             imageName: "link",

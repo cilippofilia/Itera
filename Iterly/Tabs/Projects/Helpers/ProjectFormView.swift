@@ -17,12 +17,14 @@ struct ProjectFormView: View {
     @State private var details = ""
     @State private var note = ""
     @State private var version = ""
-    @State private var appURL = ""
+    @State private var appStoreURL = ""
     @State private var type: ProjectType = .default
     @State private var priority: ProjectPriority = .default
     @State private var status: ProjectStatus = .default
     @State private var isPinned = false
     @State private var isEditing = true
+    @State private var isSaving = false
+    @State private var syncErrorMessage: String?
 
     private let project: Project?
 
@@ -33,7 +35,7 @@ struct ProjectFormView: View {
         _details = State(initialValue: project?.details ?? "")
         _note = State(initialValue: project?.note ?? "")
         _version = State(initialValue: project?.currentRelease?.version ?? "")
-        _appURL = State(initialValue: project?.currentRelease?.appURL ?? "")
+        _appStoreURL = State(initialValue: project?.currentRelease?.appStoreURL ?? "")
         _type = State(initialValue: project?.type ?? .default)
         _priority = State(initialValue: project?.priority ?? .default)
         _status = State(initialValue: project?.status ?? .default)
@@ -41,7 +43,15 @@ struct ProjectFormView: View {
     }
 
     private var canSave: Bool {
-        title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false && isSaving == false
+    }
+
+    private var isAppStoreLinked: Bool {
+        project?.currentRelease?.hasAppStoreLink == true
+    }
+
+    private var willSyncFromAppStoreURL: Bool {
+        appStoreURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
     }
 
     var body: some View {
@@ -76,11 +86,62 @@ struct ProjectFormView: View {
             }
 
             Section("Release info") {
-                TextField("Version", text: $version)
-                TextField("App URL", text: $appURL)
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                if isAppStoreLinked {
+                    LabeledContent("Version") {
+                        Text(version.isEmpty ? "Unavailable" : version)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    TextField("Version", text: $version)
+                }
+
+                if isAppStoreLinked {
+                    LabeledContent("App Store URL") {
+                        Text(appStoreURL.isEmpty ? "Unavailable" : appStoreURL)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
+                    }
+                } else {
+                    TextField("App Store URL", text: $appStoreURL)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+
+                if let syncDateText = project?.currentRelease?.appStoreSyncDateText, isAppStoreLinked {
+                    LabeledContent("Last Sync") {
+                        Text(syncDateText)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if let syncErrorMessage {
+                    Text(syncErrorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                } else if let storedError = project?.currentRelease?.appStoreSyncError, storedError.isEmpty == false {
+                    Text(storedError)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                }
+
+                if let project, isAppStoreLinked {
+                    Button("Refresh from App Store") {
+                        Task {
+                            await refreshLinkedRelease(for: project)
+                        }
+                    }
+                    .disabled(isSaving)
+
+                    Button("Disconnect App Store Link", role: .destructive) {
+                        disconnectLinkedRelease(for: project)
+                    }
+                    .disabled(isSaving)
+                } else if willSyncFromAppStoreURL {
+                    Text("The version will be fetched from the App Store when you save this project.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section("Brainstorm") {
@@ -118,64 +179,69 @@ struct ProjectFormView: View {
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    saveProject()
+                    Task {
+                        await saveProject()
+                    }
                 }
                 .disabled(!canSave)
             }
         }
+        .alert("App Store Sync Failed", isPresented: Binding(
+            get: { syncErrorMessage != nil },
+            set: { newValue in
+                if newValue == false {
+                    syncErrorMessage = nil
+                }
+            }
+        )) {
+            Button("OK", role: .cancel) {
+                syncErrorMessage = nil
+            }
+        } message: {
+            Text(syncErrorMessage ?? "Something went wrong.")
+        }
     }
 
-    private func saveProject() {
-        if let project {
-            updateProject(project)
-            dismiss()
-            return
-        }
-
-        viewModel.createProject(
-            title: title,
-            details: details,
-            note: note,
-            type: type,
-            priority: priority,
-            status: status,
-            isPinned: isPinned,
-            version: version,
-            appURL: appURL,
-            modelContext: modelContext
-        )
-        dismiss()
-    }
-
-    private func updateProject(_ project: Project) {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedAppURL = appURL.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        project.title = trimmedTitle
-        project.details = trimmedDetails.isEmpty ? nil : trimmedDetails
-        project.note = trimmedNote.isEmpty ? nil : trimmedNote
-        project.type = type
-        project.priority = priority
-        project.status = status
-        project.isPinned = isPinned
-        project.touch()
-
-        if let release = project.currentRelease {
-            release.version = version
-            release.build = ""
-            release.appURL = trimmedAppURL
-        } else {
-            let release = ProjectRelease(version: version, appURL: trimmedAppURL, project: project)
-            project.currentRelease = release
-            modelContext.insert(release)
-        }
+    private func saveProject() async {
+        isSaving = true
+        defer { isSaving = false }
 
         do {
-            try modelContext.save()
+            if let project {
+                try await viewModel.updateProject(
+                    project,
+                    title: title,
+                    details: details,
+                    note: note,
+                    type: type,
+                    priority: priority,
+                    status: status,
+                    isPinned: isPinned,
+                    version: version,
+                    appStoreURL: appStoreURL,
+                    modelContext: modelContext
+                )
+            } else {
+                try await viewModel.createProject(
+                    title: title,
+                    details: details,
+                    note: note,
+                    type: type,
+                    priority: priority,
+                    status: status,
+                    isPinned: isPinned,
+                    version: version,
+                    appStoreURL: appStoreURL,
+                    modelContext: modelContext
+                )
+            }
+
+            dismiss()
         } catch {
-            assertionFailure("Failed to update project: \(error)")
+            if let project {
+                viewModel.saveAppStoreSyncError(error, for: project, modelContext: modelContext)
+            }
+            syncErrorMessage = error.localizedDescription
         }
     }
 
@@ -183,14 +249,39 @@ struct ProjectFormView: View {
         guard let project else { return }
         status = .closed
         isPinned = false
-        updateProject(project)
-        dismiss()
+        Task {
+            await saveProject()
+        }
     }
 
     private func deleteProject() {
         guard let project else { return }
         viewModel.deleteProject(project, modelContext: modelContext)
         dismiss()
+    }
+
+    private func refreshLinkedRelease(for project: Project) async {
+        isSaving = true
+        defer { isSaving = false }
+
+        do {
+            try await viewModel.refreshAppStoreRelease(for: project, modelContext: modelContext)
+            version = project.currentRelease?.version ?? version
+            appStoreURL = project.currentRelease?.appStoreURL ?? appStoreURL
+            syncErrorMessage = nil
+        } catch {
+            viewModel.saveAppStoreSyncError(error, for: project, modelContext: modelContext)
+            syncErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func disconnectLinkedRelease(for project: Project) {
+        do {
+            try viewModel.disconnectAppStoreRelease(for: project, modelContext: modelContext)
+            syncErrorMessage = nil
+        } catch {
+            syncErrorMessage = error.localizedDescription
+        }
     }
 }
 

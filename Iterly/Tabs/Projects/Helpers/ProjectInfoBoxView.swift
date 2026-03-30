@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProjectInfoBoxView: View {
     @Bindable var project: Project
+    let isSyncingAppStore: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -65,24 +66,36 @@ struct ProjectInfoBoxView: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal)
-            .padding(.bottom, project.releaseDisplayText == nil ? 16 : 0)
 
             if let releaseText = project.releaseDisplayText {
                 HStack {
                     Text("Current Release")
-                    Spacer()
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     Text(releaseText)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
-                .padding([.horizontal, .bottom])
+                .padding(.horizontal)
+                .padding(.bottom, project.currentRelease?.appStoreSyncError?.isEmpty == false ? 0 : 12)
+            }
+
+            if let syncError = project.currentRelease?.appStoreSyncError,
+               syncError.isEmpty == false {
+                Text(syncError)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .padding(.top, 4)
+                    .padding([.horizontal, .bottom])
             }
         }
         .background(.ultraThinMaterial)
-        .clipShape(.rect(cornerRadius: 8, style: .continuous))
+        .clipShape(.rect(cornerRadius: AppCornerRadius.compact, style: .continuous))
     }
 }
 
 #Preview {
-    ProjectInfoBoxView(project: SampleData.makeProjects()[0])
+    ProjectInfoBoxView(
+        project: SampleData.makeProjects()[0],
+        isSyncingAppStore: false
+    )
 }

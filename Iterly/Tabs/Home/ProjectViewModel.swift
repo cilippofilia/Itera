@@ -5,6 +5,7 @@ import SwiftData
 @Observable
 final class ProjectViewModel {
     private let maxPinnedProjects = 4
+    private let appStoreLookupService = AppStoreLookupService()
 
     func createProject(
         title: String,
@@ -15,13 +16,13 @@ final class ProjectViewModel {
         status: ProjectStatus,
         isPinned: Bool,
         version: String,
-        appURL: String,
+        appStoreURL: String,
         modelContext: ModelContext
-    ) {
+    ) async throws {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedAppURL = appURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAppStoreURL = appStoreURL.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let project = Project(
             title: trimmedTitle,
@@ -32,19 +33,79 @@ final class ProjectViewModel {
             projectStatus: status,
             creationDate: .now,
             lastUpdated: .now,
-            isPinned: false
+            isPinned: isPinned
         )
 
-        let release = ProjectRelease(version: version, appURL: trimmedAppURL, project: project)
+        let release = ProjectRelease(version: version, appStoreURL: trimmedAppStoreURL, project: project)
         project.currentRelease = release
+
+        if trimmedAppStoreURL.isEmpty == false {
+            let lookupResult = try await appStoreLookupService.lookup(appID: trimmedAppStoreURL)
+            applyLookupResult(lookupResult, to: release)
+        }
 
         modelContext.insert(project)
 
-        do {
-            try modelContext.save()
-        } catch {
-            assertionFailure("Failed to create project: \(error)")
+        try modelContext.save()
+    }
+
+    func updateProject(
+        _ project: Project,
+        title: String,
+        details: String,
+        note: String,
+        type: ProjectType,
+        priority: ProjectPriority,
+        status: ProjectStatus,
+        isPinned: Bool,
+        version: String,
+        appStoreURL: String,
+        modelContext: ModelContext
+    ) async throws {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAppStoreURL = appStoreURL.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        project.title = trimmedTitle
+        project.details = trimmedDetails.isEmpty ? nil : trimmedDetails
+        project.note = trimmedNote.isEmpty ? nil : trimmedNote
+        project.type = type
+        project.priority = priority
+        project.status = status
+        project.isPinned = isPinned
+        project.touch()
+
+        let release = try ensureRelease(
+            for: project,
+            version: version,
+            appStoreURL: trimmedAppStoreURL,
+            modelContext: modelContext
+        )
+
+        let previousAppStoreAppID = release.extractedAppStoreAppID ?? ""
+
+        if trimmedAppStoreURL.isEmpty {
+            if previousAppStoreAppID.isEmpty == false {
+                try disconnectAppStoreRelease(for: project, modelContext: modelContext)
+            } else {
+                try modelContext.save()
+            }
+            return
         }
+
+        let nextAppStoreAppID = try appStoreLookupService.extractedAppID(from: trimmedAppStoreURL)
+
+        if previousAppStoreAppID != nextAppStoreAppID {
+            try await linkAppStoreRelease(
+                for: project,
+                appStoreURL: trimmedAppStoreURL,
+                modelContext: modelContext
+            )
+            return
+        }
+
+        try modelContext.save()
     }
 
     func togglePin(project: Project, modelContext: ModelContext) -> Bool {
@@ -83,6 +144,60 @@ final class ProjectViewModel {
         }
     }
 
+    func refreshAppStoreRelease(for project: Project, modelContext: ModelContext) async throws {
+        let release = try release(for: project)
+        let lookupResult = try await appStoreLookupService.lookup(appID: release.appStoreURL)
+        applyLookupResult(lookupResult, to: release)
+        project.touch()
+        try modelContext.save()
+    }
+
+    func linkAppStoreRelease(
+        for project: Project,
+        appStoreURL: String,
+        modelContext: ModelContext
+    ) async throws {
+        let release = try release(for: project)
+        let lookupResult = try await appStoreLookupService.lookup(appID: appStoreURL)
+        applyLookupResult(lookupResult, to: release)
+        project.touch()
+        try modelContext.save()
+    }
+
+    func disconnectAppStoreRelease(for project: Project, modelContext: ModelContext) throws {
+        let release = try release(for: project)
+        release.appStoreSyncDate = nil
+        release.appStoreSyncError = nil
+        project.touch()
+        try modelContext.save()
+    }
+
+    func linkedProjects(modelContext: ModelContext) -> [Project] {
+        let descriptor = FetchDescriptor<Project>(
+            sortBy: [SortDescriptor(\Project.lastUpdated, order: .reverse)]
+        )
+
+        do {
+            return try modelContext.fetch(descriptor).filter {
+                $0.currentRelease?.hasAppStoreLink == true
+            }
+        } catch {
+            assertionFailure("Failed to fetch linked projects: \(error)")
+            return []
+        }
+    }
+
+    func disconnectAllAppStoreLinks(modelContext: ModelContext) throws {
+        for project in linkedProjects(modelContext: modelContext) {
+            guard let release = project.currentRelease else { continue }
+            release.appStoreSyncDate = nil
+            release.appStoreSyncError = nil
+            project.touch()
+        }
+
+        try modelContext.save()
+    }
+
     func eraseAllData(modelContext: ModelContext) {
         do {
             try modelContext.delete(model: ProjectTask.self)
@@ -93,5 +208,55 @@ final class ProjectViewModel {
         } catch {
             assertionFailure("Failed to erase data: \(error)")
         }
+    }
+
+    func saveAppStoreSyncError(
+        _ error: any Error,
+        for project: Project,
+        modelContext: ModelContext
+    ) {
+        project.currentRelease?.appStoreSyncError = error.localizedDescription
+
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Failed to save App Store sync error: \(error)")
+        }
+    }
+
+    private func release(for project: Project) throws -> ProjectRelease {
+        guard let release = project.currentRelease else {
+            throw AppStoreSyncError.invalidResponse
+        }
+        return release
+    }
+
+    private func ensureRelease(
+        for project: Project,
+        version: String,
+        appStoreURL: String,
+        modelContext: ModelContext
+    ) throws -> ProjectRelease {
+        if let release = project.currentRelease {
+            if release.hasAppStoreLink == false {
+                release.version = version
+            }
+            release.build = ""
+            release.appStoreURL = appStoreURL
+            return release
+        }
+
+        let release = ProjectRelease(version: version, appStoreURL: appStoreURL, project: project)
+        project.currentRelease = release
+        modelContext.insert(release)
+        return release
+    }
+
+    private func applyLookupResult(_ lookupResult: AppStoreLookupResult, to release: ProjectRelease) {
+        release.version = lookupResult.version
+        release.appStoreURL = lookupResult.storeURL
+        release.build = ""
+        release.appStoreSyncDate = .now
+        release.appStoreSyncError = nil
     }
 }
