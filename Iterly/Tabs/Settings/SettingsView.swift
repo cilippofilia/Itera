@@ -6,17 +6,22 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
     static let settingsTag: String? = "Settings"
 
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.openURL) private var openURL
 
     @AppStorage("settings.showCompletedTasks") private var showCompletedTasks: Bool = true
     @AppStorage("settings.highlightOverdueTasks") private var highlightOverdueTasks: Bool = true
     @AppStorage("settings.compactProjectCards") private var compactProjectCards: Bool = false
 
+    @State private var projectViewModel = ProjectViewModel()
     @State private var showContactOptions: Bool = false
+    @State private var showAddSampleDataAlert: Bool = false
+    @State private var showEraseAllDataAlert: Bool = false
 
     private let supportEmail = "cilia.filippo.dev@gmail.com"
     private let appShareURLString = "https://apps.apple.com/app/id0000000000"
@@ -36,44 +41,74 @@ struct SettingsView: View {
                 Section {
                     NavigationLink {
                         ContentUnavailableView(
-                            "No exports yet",
-                            systemImage: "square.and.arrow.up",
-                            description: Text("Export and backup options can be added here later.")
-                        )
-                    } label: {
-                        HStack {
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(.blue)
-                            Text("Export Data")
-                        }
-                    }
-
-                    NavigationLink {
-                        ContentUnavailableView(
                             "No integrations yet",
                             systemImage: "link",
                             description: Text("Connected services and sync options can be added here later.")
                         )
                     } label: {
-                        HStack {
-                            Image(systemName: "link")
-                                .foregroundStyle(.blue)
-                            Text("Integrations")
-                        }
+                        FormRowView(
+                            imageName: "link",
+                            foregroundColor: .white,
+                            backgroundColor: .blue,
+                            text: "Integrations"
+                        )
+                    }
+
+                    NavigationLink {
+                        ContentUnavailableView(
+                            "No exports yet",
+                            systemImage: "square.and.arrow.up",
+                            description: Text("Export and backup options can be added here later.")
+                        )
+                    } label: {
+                        FormRowView(
+                            imageName: "square.and.arrow.down",
+                            foregroundColor: .white,
+                            backgroundColor: .secondary,
+                            text: "Export Data"
+                        )
                     }
                 } header: {
                     Text("Data - not yet implemented")
+                }
+
+                Section("Data Management") {
+                    Button {
+                        SampleData.insertSample(in: modelContext)
+                        showAddSampleDataAlert = true
+                    } label: {
+                        FormRowView(
+                            imageName: "wand.and.sparkles",
+                            foregroundColor: .white,
+                            backgroundColor: .indigo.mix(with: .purple, by: 0.5),
+                            text: "Add Sample Data"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(role: .destructive) {
+                        showEraseAllDataAlert = true
+                    } label: {
+                        FormRowView(
+                            imageName: "trash",
+                            foregroundColor: .white,
+                            backgroundColor: .red,
+                            text: "Erase All Data"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Section {
                     Button {
                         showContactOptions = true
                     } label: {
-                        HStack {
-                            Image(systemName: "envelope")
-                                .foregroundStyle(.secondary)
-                            Text("Contact the developer")
-                        }
+                        FormRowView(
+                            imageName: "envelope",
+                            foregroundColor: .white,
+                            backgroundColor: .blue.mix(with: .white, by: 0.1),
+                            text: "Contact the developer"
+                        )
                     }
                     .buttonStyle(.plain)
                     .tint(.red)
@@ -109,21 +144,23 @@ struct SettingsView: View {
                             openURL(appStoreReviewURL)
                         }
                     } label: {
-                        HStack {
-                            Image(systemName: "star.fill")
-                                .foregroundStyle(.yellow.gradient)
-                            Text("Rate the app")
-                        }
+                        FormRowView(
+                            imageName: "star.fill",
+                            foregroundColor: .yellow,
+                            backgroundColor: .secondary,
+                            text: "Rate the app"
+                        )
                     }
                     .buttonStyle(.plain)
 
                     if let appShareURL {
                         ShareLink(item: appShareURL) {
-                            HStack {
-                                Image(systemName: "square.and.arrow.up")
-                                    .foregroundStyle(.secondary)
-                                Text("Share the app")
-                            }
+                            FormRowView(
+                                imageName: "square.and.arrow.up",
+                                foregroundColor: .white,
+                                backgroundColor: .secondary,
+                                text: "Share the app"
+                            )
                         }
                         .buttonStyle(.plain)
                     } else {
@@ -144,6 +181,19 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .alert("Sample Data Added", isPresented: $showAddSampleDataAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Sample projects and tasks have been added to the app.")
+            }
+            .alert("Erase All Data?", isPresented: $showEraseAllDataAlert) {
+                Button("Erase", role: .destructive) {
+                    projectViewModel.eraseAllData(modelContext: modelContext)
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("This will permanently remove all projects, tasks, and releases.")
+            }
         }
     }
 

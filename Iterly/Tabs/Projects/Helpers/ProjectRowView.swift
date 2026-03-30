@@ -28,13 +28,8 @@ struct ProjectRowView: View {
                 Text(title)
                     .bold()
                     .lineLimit(1)
-                    .frame(maxWidth: currentRelease?.displayText == nil ? .infinity : nil, alignment: .leading)
-                if let releaseText = currentRelease?.displayText {
-                    Text(releaseText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 Text(statusTitle)
                     .badgeStyle(backgroundColor: statusColor)
             }
