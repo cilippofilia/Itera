@@ -22,6 +22,7 @@ struct ActivitySummarySectionView: View {
                     title: "Streak",
                     value: "\(summary.streak)",
                     metricIcon: "flame",
+                    iconColor: .red,
                     detail: summary.streak == 1 ? "active day" : "active days"
                 )
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -29,6 +30,7 @@ struct ActivitySummarySectionView: View {
                     title: "Total",
                     value: "\(summary.totalCount)",
                     metricIcon: "cellularbars",
+                    iconColor: .blue,
                     detail: "activities"
                 )
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -36,6 +38,7 @@ struct ActivitySummarySectionView: View {
                     title: "Busiest",
                     value: busiestValue,
                     metricIcon: "fireworks",
+                    iconColor: .mint,
                     detail: busiestDetail
                 )
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -73,15 +76,21 @@ struct ActivitySummarySectionView: View {
 
     private var definitionsMessage: String {
         """
-        Streak is the number of consecutive days with at least one activity event.
+        Streak is the number of consecutive days with at least one activity event recorded.
 
-        Total is the number of activity events in the selected range.
+        Total is the overall number of activity events recorded.
 
-        Busiest is the day with the highest number of activity events in the selected range.
+        Busiest is the day with the highest number of activity events recorded.
         """
     }
 
-    private func metric(title: String, value: String, metricIcon: String, detail: String) -> some View {
+    private func metric(
+        title: String,
+        value: String,
+        metricIcon: String,
+        iconColor: Color,
+        detail: String
+    ) -> some View {
         VStack {
             Text(title)
                 .font(.caption)
@@ -89,6 +98,7 @@ struct ActivitySummarySectionView: View {
 
             HStack(spacing: 4) {
                 Image(systemName: metricIcon)
+                    .foregroundStyle(iconColor.gradient)
                 Text(value)
                     .font(.title2)
                     .bold()
