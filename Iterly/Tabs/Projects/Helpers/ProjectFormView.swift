@@ -243,7 +243,6 @@ struct ProjectFormView: View {
     }
 
     private func closeProject() {
-        guard let project else { return }
         status = .closed
         isPinned = false
         Task {
