@@ -54,7 +54,7 @@ struct IntegrationsSettingsView: View {
                 title: Text(title),
                 message: Text(message),
                 primaryButton: .destructive(Text("Remove")) {
-                    viewModel.performPendingAction(modelContext: modelContext)
+                    viewModel.perform(action, modelContext: modelContext)
                 },
                 secondaryButton: .cancel()
             )

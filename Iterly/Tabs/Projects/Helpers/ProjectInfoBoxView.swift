@@ -65,6 +65,7 @@ struct ProjectInfoBoxView: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal)
+            .padding(.bottom, (project.releaseDisplayText != nil) ? 0 : 12)
 
             if let releaseText = project.releaseDisplayText {
                 HStack {

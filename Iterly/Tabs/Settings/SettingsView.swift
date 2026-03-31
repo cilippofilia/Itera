@@ -31,7 +31,9 @@ struct SettingsView: View {
                             text: "Integrations"
                         )
                     }
+                }
 
+                Section("Test Data") {
                     Button {
                         viewModel.addSampleData(modelContext: modelContext)
                     } label: {
@@ -66,7 +68,7 @@ struct SettingsView: View {
                         FormRowView(
                             imageName: "star.fill",
                             foregroundColor: .yellow,
-                            backgroundColor: .secondary,
+                            backgroundColor: .gray,
                             text: "Rate the app"
                         )
                     }
@@ -103,7 +105,7 @@ struct SettingsView: View {
                             FormRowView(
                                 imageName: "square.and.arrow.up",
                                 foregroundColor: .white,
-                                backgroundColor: .secondary,
+                                backgroundColor: .gray,
                                 text: "Share the app"
                             )
                         }

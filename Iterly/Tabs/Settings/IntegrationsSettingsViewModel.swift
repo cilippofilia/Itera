@@ -54,11 +54,10 @@ final class IntegrationsSettingsViewModel {
         activeErrorMessage = nil
     }
 
-    func performPendingAction(modelContext: ModelContext) {
-        guard let pendingAction else { return }
-        self.pendingAction = nil
+    func perform(_ action: PendingAction, modelContext: ModelContext) {
+        pendingAction = nil
 
-        switch pendingAction {
+        switch action {
         case .appStore(let project):
             disconnectAppStore(project, modelContext: modelContext)
         case .usefulLink(let project, let link):

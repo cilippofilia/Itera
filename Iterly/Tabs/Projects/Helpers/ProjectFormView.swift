@@ -109,11 +109,6 @@ struct ProjectFormView: View {
                 }
             }
 
-            Section("Notes") {
-                TextField("Brainstorm, context, or next steps", text: $viewModel.note, axis: .vertical)
-                    .lineLimit(4...8)
-            }
-
             Section("Useful links") {
                 ForEach($viewModel.usefulLinkDrafts) { $draft in
                     VStack(alignment: .leading) {

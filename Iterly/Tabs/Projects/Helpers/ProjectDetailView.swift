@@ -16,6 +16,7 @@ struct ProjectDetailView: View {
     @State private var projectToEdit: Project?
     @State private var showAddTaskSheet: Bool = false
     @State private var showBrainstormSheet: Bool = false
+    @State private var externalLinkErrorMessage: String?
 
     @Bindable var project: Project
 
@@ -23,27 +24,25 @@ struct ProjectDetailView: View {
         var destinations: [ExternalDestination] = []
 
         if let appStoreURL = project.currentRelease?.appStoreURL.trimmingCharacters(in: .whitespacesAndNewlines),
-           appStoreURL.isEmpty == false,
-           let destination = URL(string: appStoreURL) {
+           appStoreURL.isEmpty == false {
             destinations.append(
                 ExternalDestination(
                     title: "App Store",
                     systemImage: "apple.logo",
-                    url: destination
+                    rawURL: appStoreURL
                 )
             )
         }
 
         for link in project.currentRelease?.usefulLinks ?? [] {
             let trimmedURL = link.url.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard trimmedURL.isEmpty == false,
-                  let destination = URL(string: trimmedURL) else { continue }
+            guard trimmedURL.isEmpty == false else { continue }
 
             destinations.append(
                 ExternalDestination(
                     title: link.label,
                     systemImage: link.kind.systemImage,
-                    url: destination
+                    rawURL: trimmedURL
                 )
             )
         }
@@ -62,9 +61,7 @@ struct ProjectDetailView: View {
                         .padding(.bottom)
                 }
 
-                ProjectInfoBoxView(
-                    project: project
-                )
+                ProjectInfoBoxView(project: project)
 
                 HStack {
                     PrimaryCapsuleActionButton(
@@ -77,7 +74,7 @@ struct ProjectDetailView: View {
                         Menu {
                             ForEach(externalDestinations) { destination in
                                 Button(destination.title, systemImage: destination.systemImage) {
-                                    openURL(destination.url)
+                                    openExternalDestination(destination)
                                 }
                             }
                         } label: {
@@ -142,6 +139,33 @@ struct ProjectDetailView: View {
         } message: {
             Text("Only 4 projects can be pinned at the same time.")
         }
+        .alert("Can't Open Link", isPresented: Binding(
+            get: { externalLinkErrorMessage != nil },
+            set: { newValue in
+                if newValue == false {
+                    externalLinkErrorMessage = nil
+                }
+            }
+        )) {
+            Button("OK", role: .cancel) {
+                externalLinkErrorMessage = nil
+            }
+        } message: {
+            Text(externalLinkErrorMessage ?? "Something went wrong.")
+        }
+    }
+
+    private func openExternalDestination(_ destination: ExternalDestination) {
+        guard let resolvedURL = destination.resolvedURL else {
+            externalLinkErrorMessage = "The link for \(destination.title) is invalid. Use a full URL like https://example.com."
+            return
+        }
+
+        openURL(resolvedURL) { accepted in
+            if accepted == false {
+                externalLinkErrorMessage = "Unable to open \(destination.displayURL). Check that the link is valid."
+            }
+        }
     }
 }
 
@@ -149,7 +173,27 @@ private struct ExternalDestination: Identifiable {
     let id = UUID()
     let title: String
     let systemImage: String
-    let url: URL
+    let rawURL: String
+
+    var displayURL: String {
+        rawURL.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var resolvedURL: URL? {
+        let trimmedURL = displayURL
+        guard trimmedURL.isEmpty == false,
+              trimmedURL.localizedStandardContains(" ") == false else {
+            return nil
+        }
+
+        if let url = URL(string: trimmedURL),
+           let scheme = url.scheme,
+           scheme.isEmpty == false {
+            return url
+        }
+
+        return URL(string: "https://\(trimmedURL)")
+    }
 }
 
 #Preview("Light") {
