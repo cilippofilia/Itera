@@ -20,15 +20,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Toggle("Show completed tasks", isOn: $viewModel.showCompletedTasks)
-                    Toggle("Highlight overdue tasks", isOn: $viewModel.highlightOverdueTasks)
-                    Toggle("Compact project cards", isOn: $viewModel.compactProjectCards)
-                } header: {
-                    Text("Preferences - not yet implemented")
-                }
-
-                Section {
+                Section("Data Management") {
                     NavigationLink {
                         IntegrationsSettingsView()
                     } label: {
@@ -40,25 +32,6 @@ struct SettingsView: View {
                         )
                     }
 
-                    NavigationLink {
-                        ContentUnavailableView(
-                            "No exports yet",
-                            systemImage: "square.and.arrow.up",
-                            description: Text("Export and backup options can be added here later.")
-                        )
-                    } label: {
-                        FormRowView(
-                            imageName: "square.and.arrow.down",
-                            foregroundColor: .white,
-                            backgroundColor: .secondary,
-                            text: "Export Data"
-                        )
-                    }
-                } header: {
-                    Text("Data - not yet implemented")
-                }
-
-                Section("Data Management") {
                     Button {
                         viewModel.addSampleData(modelContext: modelContext)
                     } label: {
